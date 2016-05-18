@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>{{ title }}</h1>
+    <hr/>
+    <ul>
+    {% for z in zoning %}
+        <li><a href="{{  url_for('zoning.zoning_overview', jurisdiction_name=jurisdiction.name, zone_code=z.zone_code) }}">{{ z.zone_code }}</a></li>
+    {% endfor %}
+    </ul>
+{% endblock %}

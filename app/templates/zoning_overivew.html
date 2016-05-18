@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>{{ jurisdiction.name }} - {{ zoning.zone_code }}</h1>
+    <hr/>
+    <table>
+        <thead>
+            <th>Development Type ID</th>
+            <th>Development Type Name</th>
+            <th>Remove</th>
+        </thead>
+        {%  for allowed in zoning.allowed_uses %}
+            <tr>
+                <td data-title="Category">{{ allowed.development_type_id }}</td>
+                <td>{{ allowed.development_type.name }}</td>
+                <td><a href="{{ url_for('zoning.delete_zoning_allowed_use', allowed_use_id=allowed.zoning_allowed_use_id) }}">Remove</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <select id="select-dev-type">
+        {% for dev_type in development_types %}
+            <option value="{{ dev_type.development_type_id }}">{{ dev_type.name }}</option>
+        {% endfor %}
+    </select>
+    <a id="add_dev_type_link" href="#">Add</a>
+
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>Minimum Front Setback <input type="text" disabled>
+    <br/>Maximum Front Setback <input type="text" disabled>
+    <br/>Rear Setback <input type="text" disabled>
+    <br/>Maximum Building Height Setback <input type="text" disabled>
+    <br/>Maximum FAR Setback <input type="text" disabled>
+
+    <br/>Link <input type="text" disabled>
+    <br/>Notes <input type="text" disabled>
+    <br/>Last Modified <input type="text" disabled>
+    <br/>Modified By <input type="text" disabled>
+
+    <script type="text/javascript">
+        $(function() {
+            var link = $('a#add_dev_type_link');
+
+            $("select#select-dev-type").on("change", function() {
+                link.attr("href", $SCRIPT_ROOT + '/zoning/add/{{ jurisdiction.name }}/{{ zoning.zone_code }}/' + $(this).val() );
+            });
+
+            $("select#select-dev-type").trigger('change');
+        });
+    </script>
+{% endblock %}
