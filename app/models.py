@@ -41,9 +41,15 @@ class Zoning(db.Model):
     max_front_setback = db.Column(db.Float, nullable=False, default=0)
     rear_setback = db.Column(db.Float, nullable=False, default=0)
     side_setback = db.Column(db.Float, nullable=False, default=0)
+    min_lot_size = db.Column(db.Integer)
     min_dua = db.Column(db.Float, nullable=False, default=0)
     max_dua = db.Column(db.Float, nullable=False, default=0)
+    max_res_units = db.Column(db.Integer)
     max_building_height = db.Column(db.Integer, nullable=False, default=0)
+    zone_code_link = db.Column(db.String())
+    notes = db.Column(db.Text())
+    review_date = db.Column(db.DateTime)
+    review_by = db.Column(db.String(25))
 
     @staticmethod
     def insert_zoning():

@@ -1,7 +1,25 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>{{ jurisdiction.name }} - {{ zoning.zone_code }}</h1>
+    <h1><a href="{{ url_for('zoning.jurisdiction_overview', jurisdiction_name=jurisdiction.name) }}">{{ jurisdiction.name }}</a> - {{ zoning.zone_code }}</h1>
     <hr/>
+
+    <table>
+        <tr><td class="overview">Minimum Lot Size:</td><td class="overview right">{{ zoning.min_lot_size }} sqft</td></tr>
+        <tr><td class="overview">Minimum FAR:</td><td class="overview right">{{ zoning.min_far }}</td></tr>
+        <tr><td class="overview">Maximum FAR:</td><td class="overview right">{{ zoning.max_far }}</td></tr>
+        <tr><td class="overview">Minimum Front Setback:</td><td class="overview right">{{ zoning.min_front_setback }} ft</td></tr>
+        <tr><td class="overview">Minimum Front Setback:</td><td class="overview right">{{ zoning.max_front_setback }} ft</td></tr>
+        <tr><td class="overview">Rear Setback:</td><td class="overview right">{{ zoning.rear_setback }} ft</td></tr>
+        <tr><td class="overview">Side Setback:</td><td class="overview right">{{ zoning.side_setback }} ft</td></tr>
+        <tr><td class="overview">Minimum Dwelling Unit per Acre:</td><td class="overview right">{{ zoning.min_dua }}</td></tr>
+        <tr><td class="overview">Maximum Dellwing Unit per Acre:</td><td class="overview right">{{ zoning.max_dua }}</td></tr>
+        <tr><td class="overview">Maximum Residential Units:</td><td class="overview right">{{ zoning.max_res_units }}</td></tr>
+        <tr><td class="overview">Maximum Building Height:</td><td class="overview right">{{ zoning.max_building_height }} ft</td></tr>
+        <tr><td class="overview">Link to Zoning Ordinance:</td><td class="overview right"><a href="{{ zoning.zone_code_link }}" target="_blank">{{ zoning.zone_code_link }}</a></td></tr>
+        <tr><td class="overview">Notes:</td><td class="overview right">{{ zoning.notes }}</td></tr>
+        <tr><td class="overview">Last Reviewed:</td><td class="overview right">{{ zoning.review_date }}</td></tr>
+        <tr><td class="overview">Last Reviewed By:</td><td class="overview right">{{ zoning.review_by }}</td></tr>
+    </table>
     <table>
         <thead>
             <th>Development Type ID</th>
@@ -23,23 +41,6 @@
         {% endfor %}
     </select>
     <a id="add_dev_type_link" href="#">Add</a>
-
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <br/>Minimum Front Setback <input type="text" disabled>
-    <br/>Maximum Front Setback <input type="text" disabled>
-    <br/>Rear Setback <input type="text" disabled>
-    <br/>Maximum Building Height Setback <input type="text" disabled>
-    <br/>Maximum FAR Setback <input type="text" disabled>
-
-    <br/>Link <input type="text" disabled>
-    <br/>Notes <input type="text" disabled>
-    <br/>Last Modified <input type="text" disabled>
-    <br/>Modified By <input type="text" disabled>
 
     <script type="text/javascript">
         $(function() {
