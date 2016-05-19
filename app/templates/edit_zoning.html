@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1><a href="{{ url_for('zoning.jurisdiction_overview', jurisdiction_name=zoning.jurisdiction.name) }}">{{ zoning.jurisdiction.name }}</a> -
+        <a href="{{ url_for('zoning.zoning_overview', jurisdiction_name=zoning.jurisdiction.name, zone_code=zoning.zone_code) }}">{{ zoning.zone_code }}</a>
+    </h1>
+    <hr/>
+    {% if form.errors %}
+    <ul>
+        {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+            {% for error in field_errors %}
+                <li>{{ form[field_name].label }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <form method="post" action="{{ url_for('zoning.edit_zoning', jurisdiction_name=zoning.jurisdiction.name, zone_code=zoning.zone_code) }}">
+    {{ form.jurisdiction_id }}
+    {{ form.zoning_id }}
+    {{ form.csrf_token }}
+    <table>
+        <tr><td class="overview">Minimum Lot Size:</td><td class="overview right">{{ form.min_lot_size(class="numerical") }}</td><td class="overview">sqft</td></tr>
+        <tr><td class="overview">Minimum FAR:</td><td class="overview right">{{ form.min_far(class="numerical") }}</td><td class="overview"></td></tr>
+        <tr><td class="overview">Maximum FAR:</td><td class="overview right">{{ form.max_far(class="numerical") }}</td><td class="overview"></td></tr>
+        <tr><td class="overview">Minimum Front Setback:</td><td class="overview right">{{ form.min_front_setback(class="numerical") }}</td><td class="overview">ft</td></tr>
+        <tr><td class="overview">Maximum Front Setback:</td><td class="overview right">{{ form.max_front_setback(class="numerical") }}</td><td class="overview"> ft</td></tr>
+        <tr><td class="overview">Rear Setback:</td><td class="overview right">{{ form.rear_setback(class="numerical") }}</td><td class="overview">ft</td></tr>
+        <tr><td class="overview">Side Setback:</td><td class="overview right">{{ form.side_setback(class="numerical") }}</td><td class="overview">ft</td></tr>
+        <tr><td class="overview">Minimum Dwelling Unit per Acre:</td><td class="overview right">{{ form.min_dua(class="numerical") }}</td><td class="overview"></td></tr>
+        <tr><td class="overview">Maximum Dellwing Unit per Acre:</td><td class="overview right">{{ form.max_dua(class="numerical") }}</td><td class="overview"></td></tr>
+        <tr><td class="overview">Maximum Residential Units:</td><td class="overview right">{{ form.max_res_units(class="numerical") }}</td><td class="overview"></td></tr>
+        <tr><td class="overview">Maximum Building Height:</td><td class="overview right">{{ form.max_building_height(class="numerical") }}</td><td class="overview"d>ft</td></tr>
+        <tr><td class="overview">Link to Zoning Ordinance:</td><td class="overview right">{{ form.zone_code_link }}</td><td class="overview"></td></tr>
+        <tr><td class="overview">Notes:</td><td class="overview right">{{ form.notes }}</td><td class="overview"></td></tr>
+        <tr><td class="overview">Last Reviewed By:</td><td class="overview right">{{ form.review_by }}</td><td class="overview"></td></tr>
+    </table>
+    {{ form.submit }}
+    </form>
+    <a href="{{ url_for('zoning.zoning_overview', jurisdiction_name=zoning.jurisdiction.name, zone_code=zoning.zone_code) }}">Done</a>
+{% endblock %}
