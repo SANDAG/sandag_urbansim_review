@@ -7,6 +7,7 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename="moment.js") }}" type="text/javascript"></script>
     <script type="text/javascript">
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }}
     </script>
@@ -36,21 +37,35 @@
             border-bottom: 0.5px dotted #aaa;
             padding-top: 5px;
             padding-right: 10px;
+            height: 25px;
         }
 
-        td.right {
+        td.text-right {
             text-align: right;
         }
 
+        td.col-mid {
+            width: 165px;
+        }
+
         input {
+            font: 12px/1.2 Arial, Helvetica, sans-serif;
             padding-right: 5px;
             padding-left: 5px;
             margin-right: 2px;
-            width: 200px;
+            width: 150px;
+        }
+
+        input[type=text] {
+            border-radius: 7px;
         }
 
         input.numerical {
             text-align: right;
+        }
+
+        textarea {
+            width: 150px;
         }
     </style>
 </head>

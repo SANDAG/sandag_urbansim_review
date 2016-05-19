@@ -1,3 +1,5 @@
+import datetime
+
 from flask import redirect, render_template, url_for, flash
 
 from . import zoning
@@ -45,7 +47,6 @@ def edit_zoning(jurisdiction_name, zone_code):
     z = Zoning.query.filter_by(jurisdiction_id=j.jurisdiction_id, zone_code=zone_code).first()
 
     if form.validate_on_submit():
-        print 'Validated'
         z.min_far = form.min_far.data
         z.max_far = form.max_far.data
         z.min_front_setback = form.min_front_setback.data
@@ -59,12 +60,12 @@ def edit_zoning(jurisdiction_name, zone_code):
         z.max_building_height = form.max_building_height.data
         z.zone_code_link = form.zone_code_link.data
         z.notes =  form.notes.data
+        z.review_date = datetime.datetime.now()
         z.review_by = form.review_by.data
         db.session.add(z)
         db.session.commit()
         flash('The zone has been updated.')
-    else:
-        print 'Invalid Form'
+
     form.jurisdiction_id.data = j.jurisdiction_id
     form.zoning_id.data = z.zoning_id
     form.min_far.data = z.min_far
