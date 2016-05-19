@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+    {% if success %}<p>Saved Successfully!</p>{% endif %}
+    <h1>{{ title }}
+    </h1>
+        <h1><a href="{{ url_for('zoning.jurisdiction_overview', jurisdiction_name=j_name) }}">{{ j_name }}</a> -
+        <a href="{{ url_for('zoning.zoning_overview', jurisdiction_name=j_name, zone_code=z_code) }}">{{ z_code }}</a>
+    </h1>
+    <form action="" method="post">
+        {{form.csrf_token}}
+        <table>
+        {% for field in form %}
+            <tr><td class="overview">{{ field.label }}:</td>
+            <td class="overview right">{{ field }}</td></tr>
+        {% endfor %}
+       </table>
+     <p><input type=submit value=Save>
+    </form>
+{% endblock %}
+{#    <input type="submit" class="button" value="Save"/>#}

@@ -6,6 +6,8 @@ from . import zoning
 from .forms import EditZoningForm
 from .. import db
 from ..models import Jurisdiction, Zoning, AllowedUse, DevelopmentType
+from wtforms_sqlalchemy.orm import model_form
+
 
 
 @zoning.route('/')
@@ -103,3 +105,24 @@ def delete_zoning_allowed_use(allowed_use_id):
     db.session.delete(a)
     db.session.commit()
     return redirect(url_for('.zoning_overview', jurisdiction_name=jurisdiction_name, zone_code=zone_code))
+
+ZoneForm = model_form(Zoning,exclude=['allowed_uses','jurisdiction'])
+
+
+@zoning.route('/<jurisdiction_name>/<zone_code>/edit', methods=['GET', 'POST'])
+def edit_zoning_from_model(jurisdiction_name, zone_code):
+    success = False
+    j = Jurisdiction.query.\
+        filter_by(name=jurisdiction_name).first()
+    z = Zoning.query.filter_by(jurisdiction_id=j.jurisdiction_id, zone_code=zone_code).first()
+    if request.method == 'POST':
+        form = ZoneForm(request.form,obj=z)
+     #   if form.validate():
+        form.populate_obj(z)
+        db.session.add(z)
+        db.session.commit()
+        success = True
+    else:
+        form = ZoneForm(obj=z)
+
+    return render_template('edit_zoning_from_model.html', form=form, success=success, j_name=j.name, z_code = zone_code)
