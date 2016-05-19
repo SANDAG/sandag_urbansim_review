@@ -1,7 +1,7 @@
-from flask import redirect, render_template, url_for
+from flask import redirect, render_template, url_for, flash
 
 from . import zoning
-from .forms import AddDevelopmentTypeForm
+from .forms import EditZoningForm
 from .. import db
 from ..models import Jurisdiction, Zoning, AllowedUse, DevelopmentType
 
@@ -36,6 +36,52 @@ def zoning_overview(jurisdiction_name, zone_code):
                            zoning=z,
                            development_types=d)
 
+
+@zoning.route('/<jurisdiction_name>/<zone_code>/edit', methods=['GET', 'POST'])
+def edit_zoning(jurisdiction_name, zone_code):
+    form = EditZoningForm()
+    j = Jurisdiction.query. \
+        filter_by(name=jurisdiction_name).first()
+    z = Zoning.query.filter_by(jurisdiction_id=j.jurisdiction_id, zone_code=zone_code).first()
+
+    if form.validate_on_submit():
+        print 'Validated'
+        z.min_far = form.min_far.data
+        z.max_far = form.max_far.data
+        z.min_front_setback = form.min_front_setback.data
+        z.max_front_setback = form.max_front_setback.data
+        z.rear_setback = form.rear_setback.data
+        z.side_setback = form.side_setback.data
+        z.min_lot_size = form.min_lot_size.data
+        z.min_dua =  form.min_dua.data
+        z.max_dua = form.max_dua.data
+        z.max_res_units = form.max_res_units.data
+        z.max_building_height = form.max_building_height.data
+        z.zone_code_link = form.zone_code_link.data
+        z.notes =  form.notes.data
+        z.review_by = form.review_by.data
+        db.session.add(z)
+        db.session.commit()
+        flash('The zone has been updated.')
+    else:
+        print 'Invalid Form'
+    form.jurisdiction_id.data = j.jurisdiction_id
+    form.zoning_id.data = z.zoning_id
+    form.min_far.data = z.min_far
+    form.max_far.data = z.max_far
+    form.min_front_setback.data = z.min_front_setback
+    form.max_front_setback.data = z.max_front_setback
+    form.rear_setback.data = z.rear_setback
+    form.side_setback.data = z.side_setback
+    form.min_lot_size.data = z.min_lot_size
+    form.min_dua.data = z.min_dua
+    form.max_dua.data = z.max_dua
+    form.max_res_units.data = z.max_res_units
+    form.max_building_height.data = z.max_building_height
+    form.zone_code_link.data = z.zone_code_link
+    form.notes.data = z.notes
+    form.review_by.data = z.review_by
+    return render_template('edit_zoning.html', form=form, zoning=z)
 
 @zoning.route('/add/<jurisdiction_name>/<zone_code>/<development_type_id>')
 def add_zoning_allowed_use(jurisdiction_name, zone_code, development_type_id):
