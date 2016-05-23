@@ -1,7 +1,8 @@
 from . import db, zoning_definitions, allowed_use_def, development_type_defs
 
 class Jurisdiction(db.Model):
-    __tablename__ = 'ref.jurisdiction'
+    __tablename__ = 'jurisdiction'
+    __table_args__ = {'schema': 'ref'}
     jurisdiction_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(32), unique=True)
     zones = db.relationship('Zoning', backref='jurisdiction', lazy='dynamic')
@@ -27,7 +28,9 @@ class Jurisdiction(db.Model):
 
 
 class Zoning(db.Model):
-    __tablename__ = 'urbansim.zoning'
+    __tablename__ = 'zoning'
+    __table_args__ = {'schema': 'urbansim'}
+
     zoning_id = db.Column(db.String(35), primary_key=True)
     jurisdiction_id = db.Column(db.Integer, db.ForeignKey('ref.jurisdiction.jurisdiction_id'))
     allowed_uses = db.relationship('AllowedUse', backref='zoning', lazy='dynamic')
@@ -75,7 +78,8 @@ class Zoning(db.Model):
 
 
 class AllowedUse(db.Model):
-    __tablename__ = 'urbansim.zoning_allowed_use'
+    __tablename__ = 'zoning_allowed_use'
+    __table_args__ = {'schema': 'urbansim'}
     zoning_allowed_use_id = db.Column(db.Integer, primary_key=True)
     zoning_id = db.Column(db.Integer, db.ForeignKey('urbansim.zoning.zoning_id'))
     development_type_id = db.Column(db.Integer, db.ForeignKey('ref.development_type.development_type_id'))
@@ -96,7 +100,8 @@ class AllowedUse(db.Model):
 
 
 class DevelopmentType(db.Model):
-    __tablename__ = 'ref.development_type'
+    __tablename__ = 'development_type'
+    __table_args__ = {'schema': 'ref'}
     development_type_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(35), unique=True, nullable=False)
     allowed_uses = db.relationship('AllowedUse', backref='development_type', lazy='dynamic')

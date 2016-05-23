@@ -31,7 +31,7 @@
         <tr><td class="overview">Maximum Building Height:</td><td class="overview col-mid text-right">{{ form.max_building_height(class="numerical") }}</td><td class="overview"d>ft</td></tr>
         <tr><td class="overview">Link to Zoning Ordinance:</td><td class="overview col-mid text-right">{{ form.zone_code_link }}</td><td class="overview"></td></tr>
         <tr><td class="overview" style="vertical-align: top;">Notes:</td><td class="overview col-mid text-right">{{ form.notes }}</td><td class="overview"></td></tr>
-        <tr><td class="overview">Last Reviewed:</td><td class="overview col-mid text-right">{{ zoning.review_date }}</td><td class="overview"></td></tr>
+        <tr><td class="overview">Last Reviewed:</td><td class="overview col-mid text-right">{% if zoning.review_date %}{{ momentjs(zoning.review_date).calendar() }}{% endif %}</td><td class="overview"></td></tr>
         <tr><td class="overview">Last Reviewed By:</td><td class="overview col-mid text-right">{{ form.review_by }}</td><td class="overview"></td></tr>
     </table>
     {{ form.submit }}

@@ -17,7 +17,7 @@
         <tr><td class="overview">Maximum Building Height:</td><td class="overview col-mid text-right">{{ zoning.max_building_height }}</td><td class="overview">ft</td></tr>
         <tr><td class="overview">Link to Zoning Ordinance:</td><td class="overview col-mid text-right"><a href="{{ zoning.zone_code_link }}" target="_blank">Link</a></td><td class="overview"></td></tr>
         <tr><td class="overview">Notes:</td><td class="overview col-mid text-right">{{ zoning.notes }}</td><td class="overview"></td></tr>
-        <tr><td class="overview">Last Reviewed:</td><td class="overview col-mid text-right">{{ zoning.review_date }}</td><td class="overview"></td></tr>
+        <tr><td class="overview">Last Reviewed:</td><td class="overview col-mid text-right">{% if zoning.review_date %}{{ momentjs(zoning.review_date).calendar() }}{% endif %}</td><td class="overview"></td></tr>
         <tr><td class="overview">Last Reviewed By:</td><td class="overview col-mid text-right">{{ zoning.review_by }}</td><td class="overview"></td></tr>
     </table>
     <table>

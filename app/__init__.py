@@ -3,6 +3,7 @@ from flask.ext.bootstrap import Bootstrap
 from flask.ext.sqlalchemy import SQLAlchemy
 
 from config import config
+from .moment import momentjs
 
 bootstrap = Bootstrap()
 db = SQLAlchemy()
@@ -14,6 +15,7 @@ def create_app(config_name):
 
     bootstrap.init_app(app)
     db.init_app(app)
+    app.jinja_env.globals['momentjs'] = momentjs
 
     from .zoning import zoning as zoning_blueprint
     app.register_blueprint(zoning_blueprint, url_prefix='/zoning')

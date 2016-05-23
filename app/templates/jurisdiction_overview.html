@@ -4,7 +4,9 @@
     <hr/>
     <ul>
     {% for z in zoning %}
-        <li><a href="{{  url_for('zoning.zoning_overview', jurisdiction_name=jurisdiction.name, zone_code=z.zone_code) }}">{{ z.zone_code }}</a></li>
+        <li><a href="{{  url_for('zoning.zoning_overview', jurisdiction_name=jurisdiction.name, zone_code=z.zone_code) }}">{{ z.zone_code }}</a><span class="mod-date">
+            {% if z.review_date %}(Last Reviewed: {{ momentjs(z.review_date).calendar() }})</span>{% endif %}</li>
+
     {% endfor %}
     </ul>
 {% endblock %}

@@ -60,7 +60,7 @@ def edit_zoning(jurisdiction_name, zone_code):
         z.max_building_height = form.max_building_height.data
         z.zone_code_link = form.zone_code_link.data
         z.notes =  form.notes.data
-        z.review_date = datetime.datetime.now()
+        z.review_date = datetime.datetime.utcnow()
         z.review_by = form.review_by.data
         db.session.add(z)
         db.session.commit()
