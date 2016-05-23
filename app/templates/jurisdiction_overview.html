@@ -1,12 +1,41 @@
-{% extends "base.html" %}
+{% extends "bootstrap_base.html" %}
+{% block title %}SANDAG Zoning Review{% endblock %}
 {% block content %}
+    <div class="page-header">
     <h1>{{ title }}</h1>
-    <hr/>
-    <ul>
-    {% for z in zoning %}
-        <li><a href="{{  url_for('zoning.zoning_overview', jurisdiction_name=jurisdiction.name, zone_code=z.zone_code) }}">{{ z.zone_code }}</a><span class="mod-date">
-            {% if z.review_date %}(Last Reviewed: {{ momentjs(z.review_date).calendar() }})</span>{% endif %}</li>
-
-    {% endfor %}
-    </ul>
+    </div>
+    <div class="container-fluid">
+        {% for z in zoning %}
+        <div class="row data-heading">
+            <div class="col-sm-1">
+                <a href="{{  url_for('zoning.zoning_overview', jurisdiction_name=jurisdiction.name, zone_code=z.zone_code) }}">{{ z.zone_code }}</a>
+            </div>
+            <div class="col-sm-11 mod-date" style="text-align: left;">
+                {% if z.review_date %}(Last Reviewed: {{ momentjs(z.review_date).calendar() }}){% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3 data-item">Min. Lot Size: {{ z.min_lot_size }}</div>
+            <div class="col-sm-3 data-item">Min. FAR: {{ z.min_far }}</div>
+            <div class="col-sm-3 data-item">Max. FAR: {{ z.max_far }}</div>
+            <div class="col-sm-3 data-item">Max. Height: {{ z.max_building_height }}</div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3 data-item">Min. Front Setback: {{ z.min_front_setback }}</div>
+            <div class="col-sm-3 data-item">Max. Front Setback: {{ z.max_front_setback }}</div>
+            <div class="col-sm-3 data-item">Rear Setback: {{ z.rear_setback }}</div>
+            <div class="col-sm-3 data-item">Side Setback: {{ z.side_setback }}</div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3 data-item">Min. DU / Acre: {{ z.min_dua }}</div>
+            <div class="col-sm-3 data-item">Max. DU / Acre: {{ z.max_dua }}</div>
+            <div class="col-sm-3 data-item">Max. Residential Units: {{ z.max_res_units }}</div>
+            <div class="col-sm-3 data-item">Link to Zoning Ordinance: <a href="{{ z.zone_code_link }}" target="_blank">Link</a></div>
+        </div>
+        <div class="row data-footer">
+            <div class="col-sm-6 data-item">Last Reviewed By: {{ z.review_by }}</div>
+            <div class="col-sm-6 data-item">Notes: {{ z.notes }}</div>
+        </div>
+        {% endfor %}
+    </div>
 {% endblock %}
