@@ -1,0 +1,35 @@
+body {
+    font: 12px/1.4 Arial, Helvetica, sans-serif;
+    color: #333;
+    padding-top: 40px;
+    margin-right: 15px;
+    margin-left: 15px;
+}
+
+div.row {
+    margin-bottom: 3px;
+    margin-top: 3px;
+}
+
+div.data-item {
+    border-bottom: dotted 0.5px #aaaaaa;
+
+}
+
+div.data-heading {
+    font-size: 14px;
+    font-weight: bold;
+    border-bottom: solid 0.5px #333;
+    vertical-align: bottom;
+}
+
+div.data-footer {
+    margin-bottom: 30px;
+}
+
+div.mod-date {
+    font-style: italic;
+    font-size: 10px;
+    height: 19px;
+    vertical-align: bottom;
+}
