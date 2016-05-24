@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "bootstrap_base.html" %}
 {% block content %}
     <h1><a href="{{ url_for('zoning.jurisdiction_overview', jurisdiction_name=zoning.jurisdiction.name) }}">{{ zoning.jurisdiction.name }}</a> -
         <a href="{{ url_for('zoning.zoning_overview', jurisdiction_name=zoning.jurisdiction.name, zone_code=zoning.zone_code) }}">{{ zoning.zone_code }}</a>
@@ -17,7 +17,8 @@
     {{ form.jurisdiction_id }}
     {{ form.zoning_id }}
     {{ form.csrf_token }}
-    <table>
+    <div class="table-responsive">
+    <table class="table table-hover">
         <tr><td class="overview">Minimum Lot Size:</td><td class="overview col-mid text-right">{{ form.min_lot_size(class="numerical") }}</td><td class="overview">sqft</td></tr>
         <tr><td class="overview">Minimum FAR:</td><td class="overview col-mid text-right">{{ form.min_far(class="numerical") }}</td><td class="overview"></td></tr>
         <tr><td class="overview">Maximum FAR:</td><td class="overview col-mid text-right">{{ form.max_far(class="numerical") }}</td><td class="overview"></td></tr>
@@ -32,8 +33,9 @@
         <tr><td class="overview">Link to Zoning Ordinance:</td><td class="overview col-mid text-right">{{ form.zone_code_link }}</td><td class="overview"></td></tr>
         <tr><td class="overview" style="vertical-align: top;">Notes:</td><td class="overview col-mid text-right">{{ form.notes }}</td><td class="overview"></td></tr>
         <tr><td class="overview">Last Reviewed:</td><td class="overview col-mid text-right">{% if zoning.review_date %}{{ momentjs(zoning.review_date).calendar() }}{% endif %}</td><td class="overview"></td></tr>
-        <tr><td class="overview">Last Reviewed By:</td><td class="overview col-mid text-right">{{ form.review_by }}</td><td class="overview"></td></tr>
+        <tr><td class="overview">Last Reviewed By:</td><td class="overview col-mid text-right">{% if zoning.review_by %}{{ zoning.review_by }}{% endif %}</td><td class="overview"></td></tr>
     </table>
+    </div>
     {{ form.submit }}
     </form>
     <a href="{{ url_for('zoning.zoning_overview', jurisdiction_name=zoning.jurisdiction.name, zone_code=zoning.zone_code) }}">Done</a>

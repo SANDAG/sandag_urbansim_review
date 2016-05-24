@@ -1,0 +1,111 @@
+{% extends "bootstrap_base.html" %}
+{% block title %}SANDAG Zoning Review{% endblock %}
+{% block content %}
+    <h1>{{ title }}</h1>
+        {% for z in zoning %}
+        <div class="row data-heading">
+            <div class="col-sm-1">
+                <a href="{{  url_for('zoning.zoning_overview', jurisdiction_name=jurisdiction.name, zone_code=z.zone_code) }}">{{ z.zone_code }}</a>
+            </div>
+            <div class="col-sm-11 mod-date" style="text-align: left;">
+                {% if z.review_date %}(Last Reviewed: {{ momentjs(z.review_date).calendar() }}){% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4 data-item">
+                <div class="row">
+                    <div class="col-xs-9 text-left">Min. Lot Size:</div>
+                    <div class="col-xs-3 text-right">{{ "{:,}".format(z.min_lot_size) if z.min_lot_size }}</div>
+                </div>
+            </div>
+            <div class="col-sm-4 data-item">
+                <div class="row">
+                    <div class="col-xs-9 text-left">Min. FAR:</div>
+                    <div class="col-xs-3 text-right"> {{ z.min_far }}</div>
+                </div>
+            </div>
+            <div class="col-sm-4 data-item">
+                <div class="row">
+                    <div class="col-xs-9 text-left">Max. FAR:</div>
+                    <div class="col-xs-3 text-right">{{ z.max_far }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4 data-item">
+                <div class="row">
+                    <div class="col-xs-9 text-left">Max. Height:</div>
+                    <div class="col-xs-3 text-right">{{ z.max_building_height }}</div>
+                </div>
+            </div>
+            <div class="col-sm-4 data-item">
+                <div class="row">
+                    <div class="col-xs-9 text-left">Min. Front Setback:</div>
+                    <div class="col-xs-3 text-right"> {{ z.min_front_setback }}</div>
+                </div>
+            </div>
+            <div class="col-sm-4 data-item">
+                <div class="row">
+                    <div class="col-xs-9 text-left">Max. Front Setback:</div>
+                    <div class="col-xs-3 text-right">{{ z.max_front_setback }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4 data-item">
+                <div class="row">
+                    <div class="col-xs-9 text-left">Rear Setback:</div>
+                    <div class="col-xs-3 text-right">{{ z.rear_setback }}</div>
+                </div>
+            </div>
+            <div class="col-sm-4 data-item">
+                <div class="row">
+                    <div class="col-xs-9 text-left">Side Setback:</div>
+                    <div class="col-xs-3 text-right"> {{ z.side_setback }}</div>
+                </div>
+            </div>
+            <div class="col-sm-4 data-item">
+                <div class="row">
+                    <div class="col-xs-9 text-left">Min. DU / Acre:</div>
+                    <div class="col-xs-3 text-right">{{ z.min_dua }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4 data-item">
+                <div class="row">
+                    <div class="col-xs-9 text-left">Max. DU / Acre:</div>
+                    <div class="col-xs-3 text-right">{{ z.max_dua }}</div>
+                </div>
+            </div>
+            <div class="col-sm-4 data-item">
+                <div class="row">
+                    <div class="col-xs-9 text-left">Max. Residential Units:</div>
+                    <div class="col-xs-3 text-right"> {{ z.max_res_units }}</div>
+                </div>
+            </div>
+            <div class="col-sm-4 data-item">
+                <div class="row">
+                    <div class="col-xs-9 text-left">Zoning Ordinance:</div>
+                    <div class="col-xs-3 text-right"><a href="{{ z.zone_code_link }}" target="_blank">Link</a></div>
+                </div>
+            </div>
+        </div>
+        <div class="row data-footer">
+            <div class="col-sm-4 data-item">
+                <div class="row">
+                    <div class="col-xs-5 text-left">Last Reviewed By:</div>
+                    <div class="col-xs-7 text-right">{{ z.review_by }}</div>
+                </div>
+            </div>
+            <div class="col-sm-8 data-item">
+                <div class="row">
+                    <div class="col-xs-1 text-left">Notes:</div>
+                    <div class="col-xs-11 text-left"> {{ z.notes }}</div>
+                </div>
+            </div>
+        </div>
+
+        {% endfor %}
+    </div>
+{% endblock %}

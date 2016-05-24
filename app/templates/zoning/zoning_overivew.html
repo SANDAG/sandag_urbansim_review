@@ -1,0 +1,63 @@
+{% extends "bootstrap_base.html" %}
+{% block content %}
+    <h1><a href="{{ url_for('zoning.jurisdiction_overview', jurisdiction_name=jurisdiction.name) }}">{{ jurisdiction.name }}</a> - {{ zoning.zone_code }}</h1>
+    <hr/>
+    <a href="{{ url_for('zoning.edit_zoning', jurisdiction_name=zoning.jurisdiction.name, zone_code=zoning.zone_code) }}">edit</a><br/>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <tr><td class="overview">Minimum Lot Size:</td><td class="overview col-mid text-right">{{ zoning.min_lot_size }}</td><td class="overview">sqft</td></tr>
+            <tr><td class="overview">Minimum FAR:</td><td class="overview col-mid text-right">{{ zoning.min_far }}</td><td class="overview"></td></tr>
+            <tr><td class="overview">Maximum FAR:</td><td class="overview col-mid text-right">{{ zoning.max_far }}</td><td class="overview"></td></tr>
+            <tr><td class="overview">Minimum Front Setback:</td><td class="overview col-mid text-right">{{ zoning.min_front_setback }}</td><td class="overview">ft</td></tr>
+            <tr><td class="overview">Maximum Front Setback:</td><td class="overview col-mid text-right">{{ zoning.max_front_setback }}</td><td class="overview">ft</td></tr>
+            <tr><td class="overview">Rear Setback:</td><td class="overview col-mid text-right">{{ zoning.rear_setback }}</td><td class="overview">ft</td></tr>
+            <tr><td class="overview">Side Setback:</td><td class="overview col-mid text-right">{{ zoning.side_setback }}</td><td class="overview">ft</td></tr>
+            <tr><td class="overview">Minimum Dwelling Unit per Acre:</td><td class="overview col-mid text-right">{{ zoning.min_dua }}</td><td class="overview"></td></tr>
+            <tr><td class="overview">Maximum Dellwing Unit per Acre:</td><td class="overview col-mid text-right">{{ zoning.max_dua }}</td><td class="overview"></td></tr>
+            <tr><td class="overview">Maximum Residential Units:</td><td class="overview col-mid text-right">{{ zoning.max_res_units }}</td><td class="overview"></td></tr>
+            <tr><td class="overview">Maximum Building Height:</td><td class="overview col-mid text-right">{{ zoning.max_building_height }}</td><td class="overview">ft</td></tr>
+            <tr><td class="overview">Link to Zoning Ordinance:</td><td class="overview col-mid text-right"><a href="{{ zoning.zone_code_link }}" target="_blank">Link</a></td><td class="overview"></td></tr>
+            <tr><td class="overview">Notes:</td><td class="overview col-mid text-right">{{ zoning.notes }}</td><td class="overview"></td></tr>
+            <tr><td class="overview">Last Reviewed:</td><td class="overview col-mid text-right">{% if zoning.review_date %}{{ momentjs(zoning.review_date).calendar() }}{% endif %}</td><td class="overview"></td></tr>
+            <tr><td class="overview">Last Reviewed By:</td><td class="overview col-mid text-right">{{ zoning.review_by }}</td><td class="overview"></td></tr>
+        </table>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <th>Development Type ID</th>
+                <th>Development Type Name</th>
+                <th>Remove</th>
+            </thead>
+            {%  for allowed in zoning.allowed_uses %}
+                <tr>
+                    <td data-title="Category">{{ allowed.development_type_id }}</td>
+                    <td>{{ allowed.development_type.name }}</td>
+                    <td><a href="{{ url_for('zoning.delete_zoning_allowed_use', allowed_use_id=allowed.zoning_allowed_use_id) }}">Remove</a></td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <select id="select-dev-type">
+        {% for dev_type in development_types %}
+            <option value="{{ dev_type.development_type_id }}">{{ dev_type.name }}</option>
+        {% endfor %}
+    </select>
+    <a id="add_dev_type_link" href="#">Add</a>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+    <script type="text/javascript">
+        $(function() {
+            var link = $('a#add_dev_type_link');
+
+            $("select#select-dev-type").on("change", function() {
+                link.attr("href", $SCRIPT_ROOT + '/zoning/add/{{ jurisdiction.name }}/{{ zoning.zone_code }}/' + $(this).val() );
+            });
+
+            $("select#select-dev-type").trigger('change');
+        });
+    </script>
+{% endblock %}

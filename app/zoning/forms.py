@@ -21,7 +21,4 @@ class EditZoningForm(Form):
     max_building_height = IntegerField('Maximum Building Height', validators=[NumberRange(-1,750)])
     zone_code_link = StringField('Link to Zoning Ordinance')
     notes = TextAreaField('Notes')
-    review_by = StringField('Reviewed By', validators=[InputRequired()])
-
     submit = SubmitField('Submit')
-

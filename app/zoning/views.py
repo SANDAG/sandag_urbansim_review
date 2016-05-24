@@ -1,6 +1,7 @@
 import datetime
 
 from flask import redirect, render_template, url_for, flash
+from flask.ext.login import login_required, current_user
 
 from . import zoning
 from .forms import EditZoningForm
@@ -11,7 +12,7 @@ from ..models import Jurisdiction, Zoning, AllowedUse, DevelopmentType
 @zoning.route('/')
 def index():
     jurisdictions = Jurisdiction.query.all()
-    return render_template('index.html',
+    return render_template('zoning/index.html',
                            title='Jurisdictions',
                            jurisdictions=jurisdictions)
 
@@ -19,7 +20,7 @@ def index():
 def jurisdiction_overview(jurisdiction_name):
     j = Jurisdiction.query.\
         filter_by(name=jurisdiction_name).first()
-    return render_template('jurisdiction_overview.html',
+    return render_template('zoning/jurisdiction_overview.html',
                            title=j.name,
                            jurisdiction=j,
                            zoning=j.zones)
@@ -32,7 +33,7 @@ def zoning_overview(jurisdiction_name, zone_code):
     z = Zoning.query.filter_by(jurisdiction_id=j.jurisdiction_id, zone_code=zone_code).first()
     d = DevelopmentType.query.order_by(DevelopmentType.name).all()
 
-    return render_template('zoning_overivew.html',
+    return render_template('zoning/zoning_overivew.html',
                            title='%s - %s' % (j.name, z.zone_code),
                            jurisdiction=j,
                            zoning=z,
@@ -40,6 +41,7 @@ def zoning_overview(jurisdiction_name, zone_code):
 
 
 @zoning.route('/<jurisdiction_name>/<zone_code>/edit', methods=['GET', 'POST'])
+@login_required
 def edit_zoning(jurisdiction_name, zone_code):
     form = EditZoningForm()
     j = Jurisdiction.query. \
@@ -61,10 +63,10 @@ def edit_zoning(jurisdiction_name, zone_code):
         z.zone_code_link = form.zone_code_link.data
         z.notes =  form.notes.data
         z.review_date = datetime.datetime.utcnow()
-        z.review_by = form.review_by.data
+        z.review_by = current_user.email
         db.session.add(z)
         db.session.commit()
-        flash('The zone has been updated.')
+        flash('The zone has been updated by %s.' % current_user.email)
 
     form.jurisdiction_id.data = j.jurisdiction_id
     form.zoning_id.data = z.zoning_id
@@ -81,10 +83,11 @@ def edit_zoning(jurisdiction_name, zone_code):
     form.max_building_height.data = z.max_building_height
     form.zone_code_link.data = z.zone_code_link
     form.notes.data = z.notes
-    form.review_by.data = z.review_by
-    return render_template('edit_zoning.html', form=form, zoning=z)
+
+    return render_template('zoning/edit_zoning.html', form=form, zoning=z)
 
 @zoning.route('/add/<jurisdiction_name>/<zone_code>/<development_type_id>')
+@login_required
 def add_zoning_allowed_use(jurisdiction_name, zone_code, development_type_id):
     j = Jurisdiction.query.filter_by(name=jurisdiction_name).first()
     z = Zoning.query.filter_by(jurisdiction_id=j.jurisdiction_id, zone_code=zone_code).first()
@@ -96,6 +99,7 @@ def add_zoning_allowed_use(jurisdiction_name, zone_code, development_type_id):
 
 
 @zoning.route('/allowed_use/delete/<allowed_use_id>')
+@login_required
 def delete_zoning_allowed_use(allowed_use_id):
     a = AllowedUse.query.get(allowed_use_id)
     jurisdiction_name = a.zoning.jurisdiction.name

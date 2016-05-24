@@ -1,7 +1,7 @@
 import os
 
 from app import create_app, db
-from app.models import AllowedUse, Jurisdiction, Zoning, DevelopmentType
+from app.models import AllowedUse, Jurisdiction, Zoning, DevelopmentType, User
 from flask.ext.script import Manager, Shell
 from flask.ext.migrate import Migrate, MigrateCommand
 
@@ -12,7 +12,8 @@ migrate = Migrate(app, db)
 
 def make_shell_context():
     return dict(app=app, db=db, Jurisdiction=Jurisdiction, Zoning=Zoning,
-                AllowedUse=AllowedUse, DevelopmentType=DevelopmentType)
+                AllowedUse=AllowedUse, DevelopmentType=DevelopmentType,
+                User=User)
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))

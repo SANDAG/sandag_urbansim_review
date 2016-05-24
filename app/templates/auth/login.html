@@ -1,0 +1,23 @@
+{% extends "bootstrap_base.html" %}
+
+{%  block title %}SANDAG Zoning Review{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <form method="post" action="{{ url_for('auth.login') }}" role="form">
+            {{ form.csrf_token }}
+            <div class="form-group">
+                {{ form.email.label }}
+                {{ form.email }}
+            </div>
+            <div class="form-group">
+                {{ form.password.label }}
+                {{ form.password }}
+            </div>
+            <div class="checkbox">
+                <label>{{ form.remember_me }} Remember me</label>
+            </div>
+            {{ form.submit }}
+        </form>
+    </div>
+{% endblock %}
