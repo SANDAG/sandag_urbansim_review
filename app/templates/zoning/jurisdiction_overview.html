@@ -1,6 +1,7 @@
 {% extends "bootstrap_base.html" %}
 {% block title %}SANDAG Zoning Review{% endblock %}
 {% block content %}
+    <div class="container-fluid">
     <h1>{{ title }}</h1>
         {% for z in zoning %}
         <div class="row data-heading">
@@ -15,7 +16,7 @@
             <div class="col-sm-4 data-item">
                 <div class="row">
                     <div class="col-xs-9 text-left">Min. Lot Size:</div>
-                    <div class="col-xs-3 text-right">{{ "{:,}".format(z.min_lot_size) if z.min_lot_size }}</div>
+                    <div class="col-xs-3 text-right">{{ '{:,}'.format(z.min_lot_size) if z.min_lot_size is not none else 'N/A' }}</div>
                 </div>
             </div>
             <div class="col-sm-4 data-item">
@@ -27,7 +28,7 @@
             <div class="col-sm-4 data-item">
                 <div class="row">
                     <div class="col-xs-9 text-left">Max. FAR:</div>
-                    <div class="col-xs-3 text-right">{{ z.max_far }}</div>
+                    <div class="col-xs-3 text-right">{{ z.min_far }}</div>
                 </div>
             </div>
         </div>
@@ -108,4 +109,5 @@
 
         {% endfor %}
     </div>
+
 {% endblock %}

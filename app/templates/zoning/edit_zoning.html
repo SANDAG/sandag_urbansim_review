@@ -1,5 +1,6 @@
 {% extends "bootstrap_base.html" %}
 {% block content %}
+    <div class="container-fluid">
     <h1><a href="{{ url_for('zoning.jurisdiction_overview', jurisdiction_name=zoning.jurisdiction.name) }}">{{ zoning.jurisdiction.name }}</a> -
         <a href="{{ url_for('zoning.zoning_overview', jurisdiction_name=zoning.jurisdiction.name, zone_code=zoning.zone_code) }}">{{ zoning.zone_code }}</a>
     </h1>
@@ -30,7 +31,7 @@
         <tr><td class="overview">Maximum Dellwing Unit per Acre:</td><td class="overview col-mid text-right">{{ form.max_dua(class="numerical") }}</td><td class="overview"></td></tr>
         <tr><td class="overview">Maximum Residential Units:</td><td class="overview col-mid text-right">{{ form.max_res_units(class="numerical") }}</td><td class="overview"></td></tr>
         <tr><td class="overview">Maximum Building Height:</td><td class="overview col-mid text-right">{{ form.max_building_height(class="numerical") }}</td><td class="overview"d>ft</td></tr>
-        <tr><td class="overview">Link to Zoning Ordinance:</td><td class="overview col-mid text-right">{{ form.zone_code_link }}</td><td class="overview"></td></tr>
+        <tr><td class="overview">Link to Zoning Ordinance:</td><td class="overview col-mid text-right">{{ form.zone_code_link(class="numerical") }}</td><td class="overview"></td></tr>
         <tr><td class="overview" style="vertical-align: top;">Notes:</td><td class="overview col-mid text-right">{{ form.notes }}</td><td class="overview"></td></tr>
         <tr><td class="overview">Last Reviewed:</td><td class="overview col-mid text-right">{% if zoning.review_date %}{{ momentjs(zoning.review_date).calendar() }}{% endif %}</td><td class="overview"></td></tr>
         <tr><td class="overview">Last Reviewed By:</td><td class="overview col-mid text-right">{% if zoning.review_by %}{{ zoning.review_by }}{% endif %}</td><td class="overview"></td></tr>
@@ -38,5 +39,118 @@
     </div>
     {{ form.submit }}
     </form>
+    </div>
+    <!--
+    <div class="container">
+    <form class="form-horizontal" role="form" method="post" action="{{ url_for('zoning.edit_zoning', jurisdiction_name=zoning.jurisdiction.name, zone_code=zoning.zone_code) }}">
+        {{ form.jurisdiction_id }}
+        {{ form.zoning_id }}
+        {{ form.csrf_token }}
+        <div class="form-group">
+            {{ form.min_lot_size.label(class="control-label col-sm-3") }}
+            <div class="col-sm-7">
+                {{ form.min_lot_size(class='form-control numerical') }}
+            </div>
+            <div class="col-sm-2">sqft</div>
+        </div>
+        <div class="form-group">
+            {{ form.min_far.label(class="control-label col-sm-3") }}
+            <div class="col-sm-7">
+                {{ form.min_far(class='form-control numerical') }}
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+        <div class="form-group">
+            {{ form.max_far.label(class="control-label col-sm-3") }}
+            <div class="col-sm-7">
+                {{ form.max_far(class='form-control numerical') }}
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+        <div class="form-group">
+            {{ form.min_front_setback.label(class="control-label col-sm-3") }}
+            <div class="col-sm-7">
+                {{ form.min_front_setback(class='form-control numerical') }}
+            </div>
+            <div class="col-sm-2">ft</div>
+        </div>
+        <div class="form-group">
+            {{ form.max_front_setback.label(class="control-label col-sm-3") }}
+            <div class="col-sm-7">
+                {{ form.max_front_setback(class='form-control numerical') }}
+            </div>
+            <div class="col-sm-2">ft</div>
+        </div>
+        <div class="form-group">
+            {{ form.rear_setback.label(class="control-label col-sm-3") }}
+            <div class="col-sm-7">
+                {{ form.rear_setback(class='form-control numerical') }}
+            </div>
+            <div class="col-sm-2">ft</div>
+        </div>
+        <div class="form-group">
+            {{ form.side_setback.label(class="control-label col-sm-3") }}
+            <div class="col-sm-7">
+                {{ form.side_setback(class='form-control numerical') }}
+            </div>
+            <div class="col-sm-2">ft</div>
+        </div>
+        <div class="form-group">
+            {{ form.min_dua.label(class="control-label col-sm-3") }}
+            <div class="col-sm-7">
+                {{ form.min_dua(class='form-control numerical') }}
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+        <div class="form-group">
+            {{ form.max_dua.label(class="control-label col-sm-3") }}
+            <div class="col-sm-7">
+                {{ form.max_dua(class='form-control numerical') }}
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+        <div class="form-group">
+            {{ form.max_res_units.label(class="control-label col-sm-3") }}
+            <div class="col-sm-7">
+                {{ form.max_res_units(class='form-control numerical') }} ft
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+        <div class="form-group">
+            {{ form.max_building_height.label(class="control-label col-sm-3") }}
+            <div class="col-sm-7">
+                {{ form.max_building_height(class='form-control numerical') }}
+            </div>
+            <div class="col-sm-2">ft</div>
+        </div>
+        <div class="form-group">
+            {{ form.zone_code_link.label(class="control-label col-sm-3") }}
+            <div class="col-sm-7">
+                {{ form.zone_code_link(class='form-control numerical') }}
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+        <div class="form-group">
+            {{ form.notes.label(class="control-label col-sm-3") }}
+            <div class="col-sm-7">
+                {{ form.notes(class='form-control numerical') }}
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+        <div class="form-group">
+            <div class="control-label col-sm-3">Last Modified</div>
+            <div class="control-label col-sm-7">{% if zoning.review_date %}{{ momentjs(zoning.review_date).calendar() }}{% endif %}</div>
+            <div class="col-sm-2"></div>
+        </div>
+        <div class="form-group">
+            <div class="control-label col-sm-3">Last Modified By</div>
+            <div class="control-label col-sm-7">{% if zoning.review_by %}{{ zoning.review_by }}{% endif %}</div>
+            <div class="col-sm-2"></div>
+        </div>
+        <button type="submit" class="btn btn-default">Submit</button>
+    </form>
+
     <a href="{{ url_for('zoning.zoning_overview', jurisdiction_name=zoning.jurisdiction.name, zone_code=zoning.zone_code) }}">Done</a>
+    </div>
+    -->
 {% endblock %}

@@ -3,10 +3,22 @@ import datetime
 from flask import redirect, render_template, url_for, flash
 from flask.ext.login import login_required, current_user
 
+from sqlalchemy import func
+
 from . import zoning
 from .forms import EditZoningForm
 from .. import db
 from ..models import Jurisdiction, Zoning, AllowedUse, DevelopmentType
+
+def zoning_summary():
+    total = dict(db.session.query(Zoning.jurisdiction_id, func.count(Zoning.jurisdiction_id)).group_by(
+        Zoning.jurisdiction_id).all())
+
+    reviewed = dict(db.session.query(Zoning.jurisdiction_id, func.count(Zoning.jurisdiction_id)).filter(
+        Zoning.review_by != None).group_by(Zoning.jurisdiction_id).all())
+
+    return dict(
+        (k, {'total': total.get(k), 'reviewed': reviewed.get(k) if reviewed.get(k) is not None else 0}) for k in set(total.keys() + reviewed.keys()))
 
 
 @zoning.route('/')
@@ -14,7 +26,8 @@ def index():
     jurisdictions = Jurisdiction.query.all()
     return render_template('zoning/index.html',
                            title='Jurisdictions',
-                           jurisdictions=jurisdictions)
+                           jurisdictions=jurisdictions,
+                           summary=zoning_summary())
 
 @zoning.route('/<jurisdiction_name>')
 def jurisdiction_overview(jurisdiction_name):
@@ -31,7 +44,7 @@ def zoning_overview(jurisdiction_name, zone_code):
     j = Jurisdiction.query.\
         filter_by(name=jurisdiction_name).first()
     z = Zoning.query.filter_by(jurisdiction_id=j.jurisdiction_id, zone_code=zone_code).first()
-    d = DevelopmentType.query.order_by(DevelopmentType.name).all()
+    d = DevelopmentType.query.order_by(DevelopmentType.development_type_id).all()
 
     return render_template('zoning/zoning_overivew.html',
                            title='%s - %s' % (j.name, z.zone_code),

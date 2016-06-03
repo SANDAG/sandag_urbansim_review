@@ -24,11 +24,14 @@ def create_app(config_name):
     login_manager.init_app(app)
     app.jinja_env.globals['momentjs'] = momentjs
 
-    from .zoning import zoning as zoning_blueprint
-    app.register_blueprint(zoning_blueprint, url_prefix='/zoning')
-
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
+
+    from .scenario import scenario as scenario_blueprint
+    app.register_blueprint(scenario_blueprint, url_prefix='/scenario')
+
+    from .zoning import zoning as zoning_blueprint
+    app.register_blueprint(zoning_blueprint, url_prefix='/zoning')
 
     return app
 

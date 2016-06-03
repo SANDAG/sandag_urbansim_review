@@ -26,6 +26,8 @@ class User(UserMixin, db.Model):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def __repr__(self):
+        return '<User %r-%r>' % (self.id, self.email)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -149,4 +151,16 @@ class DevelopmentType(db.Model):
         db.session.commit()
 
     def __repr__(self):
-        return '<AllowedUse %r-%r>' % (self.development_type_id, self.name)
+        return '<DevelopmentType %r-%r>' % (self.development_type_id, self.name)
+
+
+class ModelStructure(db.Model):
+    __tablename__ = 'model'
+    __table_args__ = {'schema': 'ref'}
+    model_id = db.Column(db.SmallInteger, primary_key=True)
+    name = db.Column(db.String(64), unique=True, nullable=False)
+    display_name = db.Column(db.String(64), unique=True, nullable=False)
+    overview = db.Column(db.String())
+
+    def __repr__(self):
+        return '<ModelStructre %r-%r>' %(self.model_id, self.name)
