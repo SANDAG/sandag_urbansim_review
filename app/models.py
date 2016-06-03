@@ -1,4 +1,4 @@
-from . import db, zoning_definitions, allowed_use_def, development_type_defs, login_manager
+from . import db, zoning_definitions, allowed_use_def, development_type_defs,model_structure_def, login_manager
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.login import UserMixin, AnonymousUserMixin
 
@@ -185,6 +185,20 @@ class ModelStructure(db.Model):
     name = db.Column(db.String(64), unique=True, nullable=False)
     display_name = db.Column(db.String(64), unique=True, nullable=False)
     overview = db.Column(db.String())
+    active = db.Column(db.Boolean(), nullable=False, default=False)
+
+    @staticmethod
+    def insert_model_structure():
+        for m in model_structure_def:
+            model_structure = ModelStructure.query.get(m)
+            if model_structure is None:
+                model_structure = ModelStructure(model_id=m)
+            model_structure.name = m.name
+            model_structure.display_name = m.display_name
+            model_structure.overview = m.overview
+            model_structure.active = m.active
+            db.session.add(model_structure)
+        db.session.commit()
 
     def __repr__(self):
         return '<ModelStructre %r-%r>' %(self.model_id, self.name)
