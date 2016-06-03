@@ -26,6 +26,30 @@ class User(UserMixin, db.Model):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    @staticmethod
+    def insert_users():
+        users = {
+            1: {'email': 'clint.daniels@sandag.org',
+                'password': 'sandag',
+                'first_name': 'Clint',
+                'last_name': 'Daniels'},
+            2: {'email': 'elias.sanz@sandag.org',
+                'password': 'sandag',
+                'first_name': 'ELias',
+                'last_name': 'Sanz'},
+        }
+
+        for u in users:
+            user = User.query.filter_by(user_id=u).first()
+            if user is None:
+                user = User(user_id=u)
+            user.email = u.email
+            user.password = u.password
+            user.first_name = u.first_name
+            user.last_name = u.last_name
+            db.session.add(user)
+        db.session.commit()
+
     def __repr__(self):
         return '<User %r-%r>' % (self.id, self.email)
 
