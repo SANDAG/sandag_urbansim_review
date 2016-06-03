@@ -12,11 +12,13 @@ class Config:
         pass
 
 class DevelopmentConfig(Config):
+    DATABASE_TYPE = 'SQLITE'
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
                               'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
 
 class SqlSvrConfig(Config):
+    DATABASE_TYPE = 'MSSQL'
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'mssql+pyodbc://sql2014a8/spacecore?driver=SQL+Server+Native+Client+11.0'
 
