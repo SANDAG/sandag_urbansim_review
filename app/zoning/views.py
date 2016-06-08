@@ -50,7 +50,7 @@ def zoning_overview(jurisdiction_name, zone_code):
     z = Zoning.query.filter_by(jurisdiction_id=j.jurisdiction_id, zone_code=zone_code).first()
     d = DevelopmentType.query.order_by(DevelopmentType.development_type_id).all()
 
-    s = wkt_loads(transform_wkt(z.shape_wkt)[10:])
+    s = mapping(wkt_loads(transform_wkt(z.shape_wkt)[10:])) if z.shape_wkt is not None else None
 
 
     return render_template('zoning/zoning_overivew.html',
@@ -58,7 +58,7 @@ def zoning_overview(jurisdiction_name, zone_code):
                            jurisdiction=j,
                            zoning=z,
                            development_types=d,
-                           geom=mapping(s))
+                           geom=s)
 
 
 @zoning.route('/<jurisdiction_name>/<zone_code>/edit', methods=['GET', 'POST'])
