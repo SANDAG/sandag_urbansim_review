@@ -42,3 +42,8 @@ input.numerical {
     margin-right: 2px;
     width: 150px;
 }
+
+#map {
+    width: auto;
+    height: 700px;
+}

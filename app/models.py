@@ -1,6 +1,7 @@
 from . import db, zoning_definitions, allowed_use_def, development_type_defs, login_manager
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask.ext.login import UserMixin, AnonymousUserMixin
+from flask.ext.login import UserMixin
+
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -85,6 +86,7 @@ class Zoning(db.Model):
     notes = db.Column(db.Text())
     review_date = db.Column(db.DateTime)
     review_by = db.Column(db.String(25))
+    shape_wkt = db.Column(db.String())
 
     @staticmethod
     def insert_zoning():
