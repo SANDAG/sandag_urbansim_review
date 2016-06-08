@@ -1,115 +1,125 @@
 {% extends "bootstrap_base.html" %}
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" >
+{% endblock %}
 {% block content %}
-    <div class="container">
+<div class="container">
     <h1><a href="{{ url_for('zoning.jurisdiction_overview', jurisdiction_name=jurisdiction.name) }}">{{ jurisdiction.name }}</a> - {{ zoning.zone_code }}</h1>
     <hr/>
     <a href="{{ url_for('zoning.edit_zoning', jurisdiction_name=zoning.jurisdiction.name, zone_code=zoning.zone_code) }}">edit</a><br/>
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <tr>
-                <td class="overview">Minimum Lot Size:</td>
-                <td class="overview col-mid text-right">{{ "{:,}".format(zoning.min_lot_size) if zoning.min_lot_size is not none else 'N/A' }}</td>
-                <td class="overview">sqft</td>
-            </tr>
-            <tr>
-                <td class="overview">Minimum FAR:</td>
-                <td class="overview col-mid text-right">{{ "{:,.1f}".format(zoning.min_far) if zoning.min_far is not none else 'N/A' }}</td>
-                <td class="overview"></td>
-            </tr>
-            <tr>
-                <td class="overview">Maximum FAR:</td>
-                <td class="overview col-mid text-right">{{ "{:,.1f}".format(zoning.max_far) if zoning.max_far is not none else 'N/A' }}</td>
-                <td class="overview"></td>
-            </tr>
-            <tr>
-                <td class="overview">Minimum Front Setback:</td>
-                <td class="overview col-mid text-right">{{ "{:,.1f}".format(zoning.min_front_setback) if zoning.min_front_setback is not none else 'N/A' }}</td>
-                <td class="overview">ft</td>
-            </tr>
-            <tr>
-                <td class="overview">Maximum Front Setback:</td>
-                <td class="overview col-mid text-right">{{ "{:,.1f}".format(zoning.max_front_setback) if zoning.max_front_setback is not none else 'N/A' }}</td>
-                <td class="overview">ft</td>
-            </tr>
-            <tr>
-                <td class="overview">Rear Setback:</td>
-                <td class="overview col-mid text-right">{{ "{:,.1f}".format(zoning.rear_setback) if zoning.rear_setback is not none else 'N/A' }}</td>
-                <td class="overview">ft</td>
-            </tr>
-            <tr>
-                <td class="overview">Side Setback:</td>
-                <td class="overview col-mid text-right">{{ "{:,.1f}".format(zoning.side_setback) if zoning.side_setback is not none else 'N/A' }}</td>
-                <td class="overview">ft</td>
-            </tr>
-            <tr>
-                <td class="overview">Minimum Dwelling Unit per Acre:</td>
-                <td class="overview col-mid text-right">{{ "{:,}".format(zoning.min_dua) if zoning.min_dua is not none else 'N/A' }}</td>
-                <td class="overview"></td>
-            </tr>
-            <tr>
-                <td class="overview">Maximum Dellwing Unit per Acre:</td>
-                <td class="overview col-mid text-right">{{ "{:,}".format(zoning.max_dua) if zoning.max_dua is not none else 'N/A' }}</td>
-                <td class="overview"></td>
-            </tr>
-            <tr>
-                <td class="overview">Maximum Residential Units:</td>
-                <td class="overview col-mid text-right">{{ "{:,}".format(zoning.max_res_units) if zoning.max_res_units is not none else 'N/A' }}</td>
-                <td class="overview"></td>
-            </tr>
-            <tr>
-                <td class="overview">Maximum Building Height:</td>
-                <td class="overview col-mid text-right">{{ "{:,}".format(zoning.max_building_height) if zoning.max_building_height is not none else 'N/A' }}</td>
-                <td class="overview">ft</td>
-            </tr>
-            <tr>
-                <td class="overview">Link to Zoning Ordinance:</td>
-                <td class="overview col-mid text-right"><a href="{{ zoning.zone_code_link }}" target="_blank">Link</a></td>
-                <td class="overview"></td>
-            </tr>
-            <tr>
-                <td class="overview">Notes:</td>
-                <td class="overview col-mid text-right">{{ zoning.notes }}</td>
-                <td class="overview"></td>
-            </tr>
-            <tr>
-                <td class="overview">Last Reviewed:</td>
-                <td class="overview col-mid text-right">{% if zoning.review_date %}{{ momentjs(zoning.review_date).calendar() }}{% endif %}</td>
-                <td class="overview"></td>
-            </tr>
-            <tr>
-                <td class="overview">Last Reviewed By:</td>
-                <td class="overview col-mid text-right">{{ zoning.review_by }}</td>
-                <td class="overview"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-                <th>Development Type ID</th>
-                <th>Development Type Name</th>
-                <th>Remove</th>
-            </thead>
-            {%  for allowed in zoning.allowed_uses|sort(attribute='development_type_id') %}
+    <div class="col-md-6">
+        <div class="table-responsive">
+            <table class="table table-hover">
                 <tr>
-                    <td data-title="Category">{{ allowed.development_type_id }}</td>
-                    <td>{{ allowed.development_type.name }}</td>
-                    <td><a href="{{ url_for('zoning.delete_zoning_allowed_use', allowed_use_id=allowed.zoning_allowed_use_id) }}">Remove</a></td>
+                    <td class="overview">Minimum Lot Size:</td>
+                    <td class="overview col-mid text-right">{{ "{:,}".format(zoning.min_lot_size) if zoning.min_lot_size is not none else 'N/A' }}</td>
+                    <td class="overview">sqft</td>
                 </tr>
+                <tr>
+                    <td class="overview">Minimum FAR:</td>
+                    <td class="overview col-mid text-right">{{ "{:,.1f}".format(zoning.min_far) if zoning.min_far is not none else 'N/A' }}</td>
+                    <td class="overview"></td>
+                </tr>
+                <tr>
+                    <td class="overview">Maximum FAR:</td>
+                    <td class="overview col-mid text-right">{{ "{:,.1f}".format(zoning.max_far) if zoning.max_far is not none else 'N/A' }}</td>
+                    <td class="overview"></td>
+                </tr>
+                <tr>
+                    <td class="overview">Minimum Front Setback:</td>
+                    <td class="overview col-mid text-right">{{ "{:,.1f}".format(zoning.min_front_setback) if zoning.min_front_setback is not none else 'N/A' }}</td>
+                    <td class="overview">ft</td>
+                </tr>
+                <tr>
+                    <td class="overview">Maximum Front Setback:</td>
+                    <td class="overview col-mid text-right">{{ "{:,.1f}".format(zoning.max_front_setback) if zoning.max_front_setback is not none else 'N/A' }}</td>
+                    <td class="overview">ft</td>
+                </tr>
+                <tr>
+                    <td class="overview">Rear Setback:</td>
+                    <td class="overview col-mid text-right">{{ "{:,.1f}".format(zoning.rear_setback) if zoning.rear_setback is not none else 'N/A' }}</td>
+                    <td class="overview">ft</td>
+                </tr>
+                <tr>
+                    <td class="overview">Side Setback:</td>
+                    <td class="overview col-mid text-right">{{ "{:,.1f}".format(zoning.side_setback) if zoning.side_setback is not none else 'N/A' }}</td>
+                    <td class="overview">ft</td>
+                </tr>
+                <tr>
+                    <td class="overview">Minimum Dwelling Unit per Acre:</td>
+                    <td class="overview col-mid text-right">{{ "{:,}".format(zoning.min_dua) if zoning.min_dua is not none else 'N/A' }}</td>
+                    <td class="overview"></td>
+                </tr>
+                <tr>
+                    <td class="overview">Maximum Dellwing Unit per Acre:</td>
+                    <td class="overview col-mid text-right">{{ "{:,}".format(zoning.max_dua) if zoning.max_dua is not none else 'N/A' }}</td>
+                    <td class="overview"></td>
+                </tr>
+                <tr>
+                    <td class="overview">Maximum Residential Units:</td>
+                    <td class="overview col-mid text-right">{{ "{:,}".format(zoning.max_res_units) if zoning.max_res_units is not none else 'N/A' }}</td>
+                    <td class="overview"></td>
+                </tr>
+                <tr>
+                    <td class="overview">Maximum Building Height:</td>
+                    <td class="overview col-mid text-right">{{ "{:,}".format(zoning.max_building_height) if zoning.max_building_height is not none else 'N/A' }}</td>
+                    <td class="overview">ft</td>
+                </tr>
+                <tr>
+                    <td class="overview">Link to Zoning Ordinance:</td>
+                    <td class="overview col-mid text-right"><a href="{{ zoning.zone_code_link }}" target="_blank">Link</a></td>
+                    <td class="overview"></td>
+                </tr>
+                <tr>
+                    <td class="overview">Notes:</td>
+                    <td class="overview col-mid text-right">{{ zoning.notes }}</td>
+                    <td class="overview"></td>
+                </tr>
+                <tr>
+                    <td class="overview">Last Reviewed:</td>
+                    <td class="overview col-mid text-right">{% if zoning.review_date %}{{ momentjs(zoning.review_date).calendar() }}{% endif %}</td>
+                    <td class="overview"></td>
+                </tr>
+                <tr>
+                    <td class="overview">Last Reviewed By:</td>
+                    <td class="overview col-mid text-right">{{ zoning.review_by }}</td>
+                    <td class="overview"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <th>Development Type ID</th>
+                    <th>Development Type Name</th>
+                    <th>Remove</th>
+                </thead>
+                {%  for allowed in zoning.allowed_uses|sort(attribute='development_type_id') %}
+                    <tr>
+                        <td data-title="Category">{{ allowed.development_type_id }}</td>
+                        <td>{{ allowed.development_type.name }}</td>
+                        <td><a href="{{ url_for('zoning.delete_zoning_allowed_use', allowed_use_id=allowed.zoning_allowed_use_id) }}">Remove</a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <select id="select-dev-type" style="margin-bottom: 40px;">
+            {% for dev_type in development_types %}
+                <option value="{{ dev_type.development_type_id }}">{{ dev_type.development_type_id }}: {{ dev_type.name }}</option>
             {% endfor %}
-        </table>
+        </select>
+        <a id="add_dev_type_link" href="#">Add</a>
     </div>
-    <select id="select-dev-type" style="margin-bottom: 40px;">
-        {% for dev_type in development_types %}
-            <option value="{{ dev_type.development_type_id }}">{{ dev_type.development_type_id }}: {{ dev_type.name }}</option>
-        {% endfor %}
-    </select>
-    <a id="add_dev_type_link" href="#">Add</a>
+    <div class="col-md-6">
+        <div id="map"></div>
+    </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
+    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
     <script type="text/javascript">
         $(function() {
             var link = $('a#add_dev_type_link');
@@ -120,5 +130,40 @@
 
             $("select#select-dev-type").trigger('change');
         });
+
+        var Stamen_TonerLite = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
+	        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+	        subdomains: 'abcd',
+	        minZoom: 0,
+	        maxZoom: 20,
+	        ext: 'png'
+        });
+
+        // https: also suppported.
+        var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+	                                        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
+
+        // https: also suppported.
+        var Hydda_RoadsAndLabels = L.tileLayer('http://{s}.tile.openstreetmap.se/hydda/roads_and_labels/{z}/{x}/{y}.png', {
+	                                            attribution: 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        });
+
+        zone_layer = L.geoJson({{ geom|tojson|safe }});
+
+        map = L.map("map", {
+           zoom: 10,
+           center: [32.5, -117.3],
+           layers: [Stamen_TonerLite, zone_layer]
+        });
+
+        map.fitBounds(zone_layer.getBounds());
+
+        baseLayers = {
+          'Streets': Stamen_TonerLite,
+          'Aerial': Esri_WorldImagery
+        };
+
+        L.control.layers(baseLayers).addTo(map);
     </script>
 {% endblock %}

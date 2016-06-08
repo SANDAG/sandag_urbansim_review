@@ -10,6 +10,10 @@ from .forms import EditZoningForm
 from .. import db
 from ..models import Jurisdiction, Zoning, AllowedUse, DevelopmentType
 
+from pysandag.gis import transform_wkt
+from shapely.wkt import loads as wkt_loads
+from shapely.geometry import mapping
+
 def zoning_summary():
     total = dict(db.session.query(Zoning.jurisdiction_id, func.count(Zoning.jurisdiction_id)).group_by(
         Zoning.jurisdiction_id).all())
@@ -46,11 +50,15 @@ def zoning_overview(jurisdiction_name, zone_code):
     z = Zoning.query.filter_by(jurisdiction_id=j.jurisdiction_id, zone_code=zone_code).first()
     d = DevelopmentType.query.order_by(DevelopmentType.development_type_id).all()
 
+    s = wkt_loads(transform_wkt(z.shape_wkt)[10:])
+
+
     return render_template('zoning/zoning_overivew.html',
                            title='%s - %s' % (j.name, z.zone_code),
                            jurisdiction=j,
                            zoning=z,
-                           development_types=d)
+                           development_types=d,
+                           geom=mapping(s))
 
 
 @zoning.route('/<jurisdiction_name>/<zone_code>/edit', methods=['GET', 'POST'])
