@@ -1,0 +1,181 @@
+{% extends "bootstrap_base.html" %}
+{% block title %}SANDAG Buildings Review{% endblock %}
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" >
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/u/bs/jqc-1.12.3,dt-1.10.12/datatables.min.css"/>
+{% endblock %}
+{% block content %}
+    <div class="alt-grid container">
+        <div class="col-md-4" style="border-right: 1px #e7e7e7 solid; padding: 5px 25px; height: 75%;">
+            <div class="row">
+                <div class="col-md-6">Total Buildings:</div>
+                <div class="col-md-6 text-right">{{ building_summary.building_count }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">Total Residential Units:</div>
+                <div class="col-md-6 text-right">{{ building_summary.residential_units }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">Total Job Spaces:</div>
+                <div class="col-md-6 text-right">{{ building_summary.job_spaces }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">MGRAs Mismatched:</div>
+                <div class="col-md-6 text-right">XXXXX</div>
+            </div>
+        </div>
+        <div class="col-md-8" style="height: 75%;"><div id="map"></div></div>
+        <div class="col-md-12" style="height: 25%;margin-left: -15px; margin-right: -15px;">
+            <div class="row full-height">
+               <div class="table-responsive" style="font-size: 85%;">
+                <table id="buildings" class="table table-striped table-bordered table-hover table-sm" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Building ID</th>
+                            <th class="text-center">Building Type ID</th>
+                            <th class="text-center">Improvement Value</th>
+                            <th class="text-center">Jobs</th>
+                            <th class="text-center">Non-Residential Rent (sqft)</th>
+                            <th class="text-center">Non Residential Sq Ft</th>
+                            <th class="text-center">Residential Rent (sqft)</th>
+                            <th class="text-center">Residential Sq Ft</th>
+                            <th class="text-center">Residential Units</th>
+                            <th class="text-center">Stories</th>
+                            <th class="text-center">Year Built</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                    <tfoot>
+                        <td class="text-center"></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tfoot>
+                </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/u/bs/jqc-1.12.3,dt-1.10.12/datatables.min.js"></script>
+    <script type="text/javascript">
+        var Stamen_TonerLite = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
+	        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+	        subdomains: 'abcd',
+	        minZoom: 0,
+	        maxZoom: 20,
+	        ext: 'png'
+        });
+
+        // https: also suppported.
+        var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+	                                        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
+
+        var building_layer = L.geoJson();
+
+        map = L.map("map", {
+           zoom: 10,
+           center: [33.0, -116.85],
+           layers: [Stamen_TonerLite, building_layer]
+        });
+
+        function processBuilding(geom) {
+            console.log(geom);
+            building_layer.clearLayers();
+            building_layer.addData(geom);
+            map.fitBounds(building_layer.getBounds(), {maxZoom: 17});
+        }
+
+        function filterSubmit() {
+            var dtTable = $('#buildings').DataTable();
+
+            dtTable.columns().flatten().each(function (colIdx) {
+                var footer = dtTable.column(colIdx).footer();
+                dtTable.column(colIdx).search($(footer).find("input").val());
+            });
+
+            dtTable.draw();
+        }
+
+        $(document).ready(function() {
+            var dtTable = $('#buildings').DataTable({
+               serverSide: true,
+               ajax: {
+                   url: '{{ url_for('buildings.buildings_page') }}',
+                   type: 'POST'
+               },
+               columns: [
+                   {"data": "building_id"},
+                   {"data": "development_type_id"},
+                   {"data": "improvement_value"},
+                   {"data": "residential_units"},
+                   {"data": "residential_sqft"},
+                   {"data": "non_residential_sqft"},
+                   {"data": "job_spaces"},
+                   {"data": "non_residential_rent_per_sqft"},
+                   {"data": "residential_rent_per_sqft"},
+                   {"data": "stories"},
+                   {"data": "year_built"}
+               ],
+               columnDefs: [
+                   {className: "text-right", "targets": [2,3,4,5,6,7,8,9]},
+                   {className: "text-center", "targets": [0,1]},
+                   {name: "building_id", "targets": 0},
+                   {name: "development_type_id", "targets": 1},
+                   {name: "improvement_value", "targets": 2},
+                   {name: "residential_units", "targets": 3},
+                   {name: "residential_sqft", "targets": 4},
+                   {name: "non_residential_sqft", "targets": 5},
+                   {name: "job_spaces", "targets": 6},
+                   {name: "non_residential_rent_per_sqft", "targets": 7},
+                   {name: "residential_rent_per_sqft", "targets": 8},
+                   {name: "self.stories", "targets": 9},
+                   {name: "year_built", "targets": 10}
+                   //{targets: 0, "data": 0, "render": function (data, type, full, meta) {
+                   //    return '<a href="#" id="buildingId' + data + '">' + data + '</a>'
+                   //}}
+               ],
+               //searching: false,
+               //bFilter: true,
+               dom: 'tipr',
+               lengthChange: false,
+               pageLength: 20
+            });
+
+            dtTable.columns().flatten().each(function (colIdx) {
+                var headerText = dtTable.column(colIdx).header();
+                var i = $("<div class='col-sm-2'><input id='search-input-" + colIdx + "' type='text' class='form-control' placeholder='Search " + $(headerText).html() + "' /></div>").appendTo(dtTable.column(colIdx).footer());
+            });
+
+            $('input[id^="search-input"]').keypress(function (event) {
+               if (event.which == 13)
+                   filterSubmit()
+            });
+
+            $('#buildings tbody').on('click', 'tr', function () {
+               id = table.row(this).data()[0];
+                $.ajax({
+                   url: $SCRIPT_ROOT + '/buildings/_geometry/' + id
+                }).done(processBuilding);
+            });
+
+            $('#filter-btn').on('click', filterSubmit)
+        });
+
+
+    </script>
+{% endblock %}

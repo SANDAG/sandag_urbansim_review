@@ -203,4 +203,52 @@ class ModelStructure(db.Model):
         db.session.commit()
 
     def __repr__(self):
-        return '<ModelStructre %r-%r>' %(self.model_id, self.name)
+        return '<ModelStructure %r-%r>' %(self.model_id, self.name)
+
+
+class Building(db.Model):
+    __tablename__ = 'buildings'
+    __table_args__ = {'schema': 'urbansim'}
+    column_default_sort = 'building_id'
+    building_id = db.Column(db.Integer, primary_key=True)
+    development_type_id = db.Column(db.Integer, nullable=False)
+    #parcel_id
+    improvement_value = db.Column(db.Float)
+    residential_units = db.Column(db.SmallInteger)
+    residential_sqft = db.Column(db.Integer)
+    non_residential_sqft = db.Column(db.Integer)
+    job_spaces = db.Column(db.SmallInteger)
+    non_residential_rent_per_sqft = db.Column(db.Float)
+    residential_rent_per_sqft = db.Column(db.Float, name='price_per_sqft')
+    stories = db.Column(db.Integer)
+    year_built = db.Column(db.SmallInteger)
+    shape_wkt = db.Column(db.String)
+    centroid_wkt = db.Column(db.String)
+
+    @property
+    def to_json(self):
+        return {
+            'building_id': self.building_id,
+            'development_type_id': self.development_type_id,
+            'improvement_value': '{:,}'.format(int(self.improvement_value)) if self.improvement_value is not None else '',
+            'residential_units': '{:,}'.format(self.residential_units) if self.residential_units is not None else '',
+            'residential_sqft': '{:,}'.format(self.residential_sqft) if self.residential_sqft is not None else '',
+            'non_residential_sqft': '{:,}'.format(self.non_residential_sqft) if self.non_residential_sqft is not None else '',
+            'job_spaces': '{:,}'.format(self.job_spaces) if self.job_spaces is not None else '',
+            'non_residential_rent_per_sqft': '{:,}'.format(self.non_residential_rent_per_sqft) if self.non_residential_rent_per_sqft is not None else '',
+            'residential_rent_per_sqft': '{:,}'.format(self.residential_rent_per_sqft) if self.non_residential_rent_per_sqft is not None else '',
+            'stories': '{:,}'.format(self.stories) if self.job_spaces is not self.stories else '',
+            'year_built': self.year_built
+        }
+
+    def __repr__(self):
+        return '<Building %r>' % self.building_id
+
+
+class Parcel(db.Model):
+    __tablename__ = 'parcel'
+    __table_args__ = {'schema': 'urbansim'}
+    parcel_id = db.Column(db.Integer, primary_key=True)
+
+    def __repr__(self):
+        return '<Parcel %r>' % self.parcel_id

@@ -1,5 +1,6 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
+POSTS_PER_PAGE = 10
 
 class Config:
     SECRET_KEY = '074hN0u4Ex'
