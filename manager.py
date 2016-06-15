@@ -36,5 +36,7 @@ def deploy():
 
     DevelopmentType.insert_development_type()
 
+    User.insert_users()
+
 if __name__ == '__main__':
     manager.run()

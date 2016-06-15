@@ -4,8 +4,8 @@ from flask.ext.login import UserMixin
 
 
 class User(UserMixin, db.Model):
-    __tablename__ = 'users'
-    __table_args__ = {'schema' : 'ref'}
+    __tablename__ = 'ref.users'
+    #__table_args__ = {'schema' : 'ref'}
     id = db.Column(db.Integer, primary_key=True, name='users_id')
     email = db.Column(db.String(64), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(128))
@@ -36,18 +36,18 @@ class User(UserMixin, db.Model):
                 'last_name': 'Daniels'},
             2: {'email': 'elias.sanz@sandag.org',
                 'password': 'sandag',
-                'first_name': 'ELias',
+                'first_name': 'Elias',
                 'last_name': 'Sanz'},
         }
 
         for u in users:
-            user = User.query.filter_by(user_id=u).first()
+            user = User.query.filter_by(id=u).first()
             if user is None:
-                user = User(user_id=u)
-            user.email = u.email
-            user.password = u.password
-            user.first_name = u.first_name
-            user.last_name = u.last_name
+                user = User(id=u)
+            user.email = users[u]['email']
+            user.password = users[u]['password']
+            user.first_name = users[u]['first_name']
+            user.last_name = users[u]['last_name']
             db.session.add(user)
         db.session.commit()
 
@@ -60,8 +60,8 @@ def load_user(user_id):
 
 
 class Jurisdiction(db.Model):
-    __tablename__ = 'jurisdiction'
-    __table_args__ = {'schema': 'ref'}
+    __tablename__ = 'ref.jurisdiction'
+    #__table_args__ = {'schema': 'ref'}
     jurisdiction_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(32), unique=True)
     zones = db.relationship('Zoning', backref='jurisdiction', lazy='dynamic')
@@ -87,8 +87,8 @@ class Jurisdiction(db.Model):
 
 
 class Zoning(db.Model):
-    __tablename__ = 'zoning'
-    __table_args__ = {'schema': 'urbansim'}
+    __tablename__ = 'urbansim.zoning'
+    #__table_args__ = {'schema': 'urbansim'}
 
     zoning_id = db.Column(db.String(35), primary_key=True)
     jurisdiction_id = db.Column(db.Integer, db.ForeignKey('ref.jurisdiction.jurisdiction_id'))
@@ -138,8 +138,8 @@ class Zoning(db.Model):
 
 
 class AllowedUse(db.Model):
-    __tablename__ = 'zoning_allowed_use'
-    __table_args__ = {'schema': 'urbansim'}
+    __tablename__ = 'urbansim.zoning_allowed_use'
+    #__table_args__ = {'schema': 'urbansim'}
     zoning_allowed_use_id = db.Column(db.Integer, primary_key=True)
     zoning_id = db.Column(db.Integer, db.ForeignKey('urbansim.zoning.zoning_id'))
     development_type_id = db.Column(db.Integer, db.ForeignKey('ref.development_type.development_type_id'))
@@ -160,8 +160,8 @@ class AllowedUse(db.Model):
 
 
 class DevelopmentType(db.Model):
-    __tablename__ = 'development_type'
-    __table_args__ = {'schema': 'ref'}
+    __tablename__ = 'ref.development_type'
+    #__table_args__ = {'schema': 'ref'}
     development_type_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(35), unique=True, nullable=False)
     allowed_uses = db.relationship('AllowedUse', backref='development_type', lazy='dynamic')
@@ -181,8 +181,8 @@ class DevelopmentType(db.Model):
 
 
 class ModelStructure(db.Model):
-    __tablename__ = 'model'
-    __table_args__ = {'schema': 'ref'}
+    __tablename__ = 'ref.model'
+    #__table_args__ = {'schema': 'ref'}
     model_id = db.Column(db.SmallInteger, primary_key=True)
     name = db.Column(db.String(64), unique=True, nullable=False)
     display_name = db.Column(db.String(64), unique=True, nullable=False)
@@ -207,8 +207,8 @@ class ModelStructure(db.Model):
 
 
 class Building(db.Model):
-    __tablename__ = 'buildings'
-    __table_args__ = {'schema': 'urbansim'}
+    __tablename__ = 'urbansim.buildings'
+    #__table_args__ = {'schema': 'urbansim'}
     column_default_sort = 'building_id'
     building_id = db.Column(db.Integer, primary_key=True)
     development_type_id = db.Column(db.Integer, nullable=False)
@@ -238,7 +238,8 @@ class Building(db.Model):
             'non_residential_rent_per_sqft': '{:,}'.format(self.non_residential_rent_per_sqft) if self.non_residential_rent_per_sqft is not None else '',
             'residential_rent_per_sqft': '{:,}'.format(self.residential_rent_per_sqft) if self.non_residential_rent_per_sqft is not None else '',
             'stories': '{:,}'.format(self.stories) if self.job_spaces is not self.stories else '',
-            'year_built': self.year_built
+            'year_built': self.year_built,
+            'DT_RowId': 'row_%i' % self.building_id
         }
 
     def __repr__(self):
@@ -246,8 +247,8 @@ class Building(db.Model):
 
 
 class Parcel(db.Model):
-    __tablename__ = 'parcel'
-    __table_args__ = {'schema': 'urbansim'}
+    __tablename__ = 'urbansim.parcel'
+    #__table_args__ = {'schema': 'urbansim'}
     parcel_id = db.Column(db.Integer, primary_key=True)
 
     def __repr__(self):
