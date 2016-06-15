@@ -94,7 +94,6 @@
         });
 
         function processBuilding(geom) {
-            console.log(geom);
             building_layer.clearLayers();
             building_layer.addData(geom);
             map.fitBounds(building_layer.getBounds(), {maxZoom: 17});
@@ -112,6 +111,7 @@
         }
 
         $(document).ready(function() {
+            var selected = [];
             var dtTable = $('#buildings').DataTable({
                serverSide: true,
                ajax: {
@@ -153,7 +153,12 @@
                //bFilter: true,
                dom: 'tipr',
                lengthChange: false,
-               pageLength: 20
+               pageLength: 20,
+               rowCallback: function(row, data) {
+                   if ($.inArray(data.DT_RowId, selected) !== -1) {
+                       $(row).addClass('info');
+                   }
+               }
             });
 
             dtTable.columns().flatten().each(function (colIdx) {
@@ -167,13 +172,15 @@
             });
 
             $('#buildings tbody').on('click', 'tr', function () {
-               id = table.row(this).data()[0];
-                $.ajax({
+               $(this).addClass('info').siblings().removeClass('info');
+
+               id = dtTable.row(this).data()['building_id'];
+               selected = ['row_'+id];
+
+               $.ajax({
                    url: $SCRIPT_ROOT + '/buildings/_geometry/' + id
                 }).done(processBuilding);
             });
-
-            $('#filter-btn').on('click', filterSubmit)
         });
 
 

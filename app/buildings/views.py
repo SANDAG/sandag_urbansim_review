@@ -38,6 +38,7 @@ def buildings_geometry(building_id):
 
 @buildings.route('/_data', methods=['POST'])
 def buildings_page():
+    total_records = db.session.query(func.count(Building.building_id)).scalar()
     draw = request.values.get('draw',type=int)
     start = request.values.get('start', type=int)
     length = request.values.get('length', type=int)
@@ -62,7 +63,7 @@ def buildings_page():
     bldgs = [bldg.to_json for bldg in result.items]
     j = {
         'draw': draw,
-        'recordsTotal': result.total,
+        'recordsTotal': total_records,
         'recordsFiltered': result.total,
         'data': bldgs
     }
