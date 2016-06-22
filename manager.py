@@ -13,7 +13,7 @@ migrate = Migrate(app, db)
 def make_shell_context():
     return dict(app=app, db=db, Jurisdiction=Jurisdiction, Zoning=Zoning,
                 AllowedUse=AllowedUse, DevelopmentType=DevelopmentType,
-                User=User, Building=Building, Parcel=Parcel)
+                User=User, Building=Building, Parcel=Parcel, LandUseZone=LandUseZone)
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))

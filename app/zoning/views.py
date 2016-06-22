@@ -1,18 +1,16 @@
 import datetime
 
-from flask import redirect, render_template, url_for, flash
+from flask import redirect, render_template, url_for, flash, jsonify, Response
 from flask.ext.login import login_required, current_user
 
-from sqlalchemy import func
+from sqlalchemy import func, asc
 
 from . import zoning
 from .forms import EditZoningForm
 from .. import db
 from ..models import Jurisdiction, Zoning, AllowedUse, DevelopmentType
 
-from pysandag.gis import transform_wkt
-from shapely.wkt import loads as wkt_loads
-from shapely.geometry import mapping
+import json
 
 def zoning_summary():
     total = dict(db.session.query(Zoning.jurisdiction_id, func.count(Zoning.jurisdiction_id)).group_by(
@@ -50,15 +48,12 @@ def zoning_overview(jurisdiction_name, zone_code):
     z = Zoning.query.filter_by(jurisdiction_id=j.jurisdiction_id, zone_code=zone_code).first()
     d = DevelopmentType.query.order_by(DevelopmentType.development_type_id).all()
 
-    s = mapping(wkt_loads(transform_wkt(z.shape_wkt)[10:])) if z.shape_wkt is not None else None
-
-
     return render_template('zoning/zoning_overivew.html',
                            title='%s - %s' % (j.name, z.zone_code),
                            jurisdiction=j,
                            zoning=z,
                            development_types=d,
-                           geom=s)
+                           geom=z.shape_geojson)
 
 
 @zoning.route('/<jurisdiction_name>/<zone_code>/edit', methods=['GET', 'POST'])
@@ -119,6 +114,21 @@ def add_zoning_allowed_use(jurisdiction_name, zone_code, development_type_id):
     return redirect(url_for('.zoning_overview', jurisdiction_name=j.name, zone_code=z.zone_code))
 
 
+@zoning.route('/_add/<jurisdiction_name>/<zone_code>/<development_type_id>')
+@login_required
+def add_zoning_allowed_use_ajax(jurisdiction_name, zone_code, development_type_id):
+    print jurisdiction_name
+    print zone_code
+    print development_type_id
+    j = Jurisdiction.query.filter_by(name=jurisdiction_name).first()
+    z = Zoning.query.filter_by(jurisdiction_id=j.jurisdiction_id, zone_code=zone_code).first()
+    a = AllowedUse(zoning_id=z.zoning_id, development_type_id=development_type_id)
+    db.session.add(a)
+    db.session.commit()
+
+    return jsonify(result=[a.to_json for a in z.allowed_uses.order_by(asc(AllowedUse.development_type_id))])
+
+
 @zoning.route('/allowed_use/delete/<allowed_use_id>')
 @login_required
 def delete_zoning_allowed_use(allowed_use_id):
@@ -128,3 +138,13 @@ def delete_zoning_allowed_use(allowed_use_id):
     db.session.delete(a)
     db.session.commit()
     return redirect(url_for('.zoning_overview', jurisdiction_name=jurisdiction_name, zone_code=zone_code))
+
+@zoning.route('/allowed_use/_delete/<allowed_use_id>')
+@login_required
+def delete_zoning_allowed_use_ajax(allowed_use_id):
+    a = AllowedUse.query.get(allowed_use_id)
+    z = a.zoning
+    db.session.delete(a)
+    db.session.commit()
+
+    return jsonify(result=[a.to_json for a in z.allowed_uses.order_by(asc(AllowedUse.development_type_id))])

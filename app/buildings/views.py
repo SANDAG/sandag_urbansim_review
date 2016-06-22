@@ -1,15 +1,11 @@
 
-from flask import render_template, request, url_for
-from flask.ext.login import login_required, current_user
+from flask import render_template, request
+from flask.ext.login import login_required
 from flask import jsonify
 from sqlalchemy import desc, func
 
-from pysandag.gis import transform_wkt
-from shapely.wkt import loads as wkt_loads
-from shapely.geometry import mapping
-
 from . import buildings
-from ..models import Building
+from ..models import Building, Parcel, Geographies
 from .. import db
 
 
@@ -31,9 +27,7 @@ def buildings_summary():
 @buildings.route('/_geometry/<int:building_id>')
 def buildings_geometry(building_id):
     building = Building.query.get(building_id)
-    s = mapping(wkt_loads(transform_wkt(building.shape_wkt)[10:])) if building.shape_wkt is not None else None
-
-    return jsonify(s)
+    return jsonify(building.shape_geojson)
 
 
 @buildings.route('/_data', methods=['POST'])
@@ -69,3 +63,52 @@ def buildings_page():
     }
 
     return jsonify(j)
+
+
+@buildings.route('/_statistics/map', methods=['POST'])
+def buildings_statistics_map():
+    zoom_level = request.values.get('zoom_level',type=int)
+    x_min = request.values.get('x_min',type=float)
+    x_max = request.values.get('x_max',type=float)
+    y_min = request.values.get('y_min',type=float)
+    y_max = request.values.get('y_max',type=float)
+
+    if zoom_level < 12:
+        geography_type = 'msa'
+        print 'msa'
+    elif zoom_level < 15:
+        geography_type = 'luz'
+        print 'luz'
+    elif zoom_level < 18:
+        geography_type = 'mgra'
+        print 'mgra'
+    else:
+        geography_type = 'msa'
+        print 'default'
+
+    polygon = 'SRID=4326;POLYGON(({0:f} {1:f},{0:f} {3:f},{2:f} {3:f},{2:f} {1:f},{0:f} {1:f}))'.format(x_min, y_min, x_max, y_max)
+
+    centroids = dict(db.session.query(Geographies.zone, func.ST_AsGeoJson(Geographies.centroid)).filter(
+        Geographies.geography_type == geography_type[:5]).filter(Geographies.centroid.ST_Intersects(polygon)).all())
+
+    id_column = getattr(Parcel, geography_type + "_id")
+    bldgs = dict(db.session.query(id_column, func.count(Building.building_id)).join(Building).filter(
+        id_column.isnot(None)).filter(id_column.in_(centroids.keys())).group_by(id_column).order_by(id_column).all())
+
+    return_list = []
+
+    for k, v in bldgs.iteritems():
+        geojson = eval(centroids[k])
+        return_list.append({
+            "type": "Feature",
+            "geometry": {
+                "type": geojson['type'],
+                "coordinates": geojson['coordinates']
+            },"properties": {
+                "buildings" : v
+                ,geography_type: k
+            }
+        })
+
+    return jsonify({"type": "FeatureCollection",
+                    "features":return_list})

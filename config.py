@@ -1,4 +1,6 @@
 import os
+from pysandag.database import get_connection_string
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 POSTS_PER_PAGE = 10
 
@@ -23,9 +25,14 @@ class SqlSvrConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'mssql+pyodbc://sql2014a8/spacecore?driver=SQL+Server+Native+Client+11.0'
 
+class PgConfig(Config):
+    DATABASE_TYPE = 'PGSQL'
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = in_connection_string = get_connection_string("config/dbconfig.yml", 'in_db')
 
 config = {
     'development': DevelopmentConfig,
     'sqlsvr': SqlSvrConfig,
+    'pgsql': PgConfig,
     'default': DevelopmentConfig
 }

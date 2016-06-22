@@ -1,11 +1,15 @@
 from . import db, zoning_definitions, allowed_use_def, development_type_defs,model_structure_def, login_manager
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.login import UserMixin
+from geoalchemy2.shape import to_shape
+from geoalchemy2.types import Geography
+from shapely.geometry import mapping as geojson_mapping
+
 
 
 class User(UserMixin, db.Model):
-    __tablename__ = 'ref.users'
-    #__table_args__ = {'schema' : 'ref'}
+    __tablename__ = 'users'
+    __table_args__ = {'schema' : 'ref'}
     id = db.Column(db.Integer, primary_key=True, name='users_id')
     email = db.Column(db.String(64), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(128))
@@ -60,8 +64,8 @@ def load_user(user_id):
 
 
 class Jurisdiction(db.Model):
-    __tablename__ = 'ref.jurisdiction'
-    #__table_args__ = {'schema': 'ref'}
+    __tablename__ = 'jurisdiction'
+    __table_args__ = {'schema': 'ref'}
     jurisdiction_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(32), unique=True)
     zones = db.relationship('Zoning', backref='jurisdiction', lazy='dynamic')
@@ -87,8 +91,8 @@ class Jurisdiction(db.Model):
 
 
 class Zoning(db.Model):
-    __tablename__ = 'urbansim.zoning'
-    #__table_args__ = {'schema': 'urbansim'}
+    __tablename__ = 'zoning'
+    __table_args__ = {'schema': 'urbansim'}
 
     zoning_id = db.Column(db.String(35), primary_key=True)
     jurisdiction_id = db.Column(db.Integer, db.ForeignKey('ref.jurisdiction.jurisdiction_id'))
@@ -110,7 +114,11 @@ class Zoning(db.Model):
     notes = db.Column(db.Text())
     review_date = db.Column(db.DateTime)
     review_by = db.Column(db.String(25))
-    shape_wkt = db.Column(db.String())
+    shape = db.Column(Geography(geometry_type='Geometry', srid=4326))
+
+    @property
+    def shape_geojson(self):
+        return geojson_mapping(to_shape(self.shape)) if self.shape is not None else None
 
     @staticmethod
     def insert_zoning():
@@ -138,11 +146,21 @@ class Zoning(db.Model):
 
 
 class AllowedUse(db.Model):
-    __tablename__ = 'urbansim.zoning_allowed_use'
-    #__table_args__ = {'schema': 'urbansim'}
+    __tablename__ = 'zoning_allowed_use'
+    __table_args__ = {'schema': 'urbansim'}
     zoning_allowed_use_id = db.Column(db.Integer, primary_key=True)
     zoning_id = db.Column(db.Integer, db.ForeignKey('urbansim.zoning.zoning_id'))
     development_type_id = db.Column(db.Integer, db.ForeignKey('ref.development_type.development_type_id'))
+
+    @property
+    def to_json(self):
+        return {
+            'zoning_allowed_use_id': self.zoning_allowed_use_id,
+            'zoning_id': self.zoning_id,
+            'zone_code': self.zoning.zone_code,
+            'development_type_id': self.development_type_id,
+            'development_type': self.development_type.name
+        }
 
     @staticmethod
     def insert_allowed_use():
@@ -160,8 +178,8 @@ class AllowedUse(db.Model):
 
 
 class DevelopmentType(db.Model):
-    __tablename__ = 'ref.development_type'
-    #__table_args__ = {'schema': 'ref'}
+    __tablename__ = 'development_type'
+    __table_args__ = {'schema': 'ref'}
     development_type_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(35), unique=True, nullable=False)
     allowed_uses = db.relationship('AllowedUse', backref='development_type', lazy='dynamic')
@@ -181,8 +199,8 @@ class DevelopmentType(db.Model):
 
 
 class ModelStructure(db.Model):
-    __tablename__ = 'ref.model'
-    #__table_args__ = {'schema': 'ref'}
+    __tablename__ = 'model'
+    __table_args__ = {'schema': 'ref'}
     model_id = db.Column(db.SmallInteger, primary_key=True)
     name = db.Column(db.String(64), unique=True, nullable=False)
     display_name = db.Column(db.String(64), unique=True, nullable=False)
@@ -207,12 +225,12 @@ class ModelStructure(db.Model):
 
 
 class Building(db.Model):
-    __tablename__ = 'urbansim.buildings'
-    #__table_args__ = {'schema': 'urbansim'}
+    __tablename__ = 'buildings'
+    __table_args__ = {'schema': 'urbansim'}
     column_default_sort = 'building_id'
     building_id = db.Column(db.Integer, primary_key=True)
     development_type_id = db.Column(db.Integer, nullable=False)
-    #parcel_id
+    parcel_id = db.Column(db.Integer, db.ForeignKey('urbansim.parcels.parcel_id'))
     improvement_value = db.Column(db.Float)
     residential_units = db.Column(db.SmallInteger)
     residential_sqft = db.Column(db.Integer)
@@ -222,13 +240,22 @@ class Building(db.Model):
     residential_rent_per_sqft = db.Column(db.Float, name='price_per_sqft')
     stories = db.Column(db.Integer)
     year_built = db.Column(db.SmallInteger)
-    shape_wkt = db.Column(db.String)
-    centroid_wkt = db.Column(db.String)
+    shape = db.Column(Geography(geometry_type='GEOMETRY', srid=4236))
+    centroid = db.Column(Geography(geometry_type='POINT', srid=4326))
+
+    @property
+    def shape_geojson(self):
+        return geojson_mapping(to_shape(self.shape)) if self.shape is not None else None
+
+    @property
+    def centroid_geojson(self):
+        return geojson_mapping(to_shape(self.centroid)) if self.shape is not None else None
 
     @property
     def to_json(self):
         return {
             'building_id': self.building_id,
+            'parcel_id': self.parcel_id,
             'development_type_id': self.development_type_id,
             'improvement_value': '{:,}'.format(int(self.improvement_value)) if self.improvement_value is not None else '',
             'residential_units': '{:,}'.format(self.residential_units) if self.residential_units is not None else '',
@@ -247,9 +274,23 @@ class Building(db.Model):
 
 
 class Parcel(db.Model):
-    __tablename__ = 'urbansim.parcel'
-    #__table_args__ = {'schema': 'urbansim'}
+    __tablename__ = 'parcels'
+    __table_args__ = {'schema': 'urbansim'}
     parcel_id = db.Column(db.Integer, primary_key=True)
+    msa_id = db.Column(db.Integer)
+    luz_id = db.Column(db.Integer)
+    mgra_id = db.Column(db.Integer)
+    buildings = db.relationship('Building', backref='parcel', lazy='dynamic')
 
     def __repr__(self):
         return '<Parcel %r>' % self.parcel_id
+
+
+class Geographies(db.Model):
+    __tablename__ = 'geography_zone'
+    __table_args__ = {'schema': 'ref'}
+    geography_zone_id = db.Column(db.Integer, primary_key=True)
+    geography_type = db.Column(db.String(8), nullable=False)
+    zone = db.Column(db.Integer, nullable=False)
+    shape = db.Column(Geography(geometry_type='MULTIPOLYGON', srid=4326), nullable=False)
+    centroid = db.Column(Geography(geometry_type='POINT', srid=4326), nullable=False)

@@ -9,6 +9,7 @@
     <script type="text/javascript">
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }}
     </script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/numeral.js/1.4.5/numeral.min.js"></script>
 {%  endblock %}
 
 {% block title %}{{ title }} - SANDAG Urbansim Manager{% endblock %}

@@ -3,7 +3,7 @@
 {% block content %}
     <div class="container-fluid">
     <h1>{{ title }}</h1>
-        {% for z in zoning %}
+        {% for z in zoning|sort(attribute='zone_code') %}
         <a name="{{ z.zone_code }}"></a>
         <div class="row data-heading">
             <div class="col-sm-1">

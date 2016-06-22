@@ -89,19 +89,21 @@
         </div>
         <div class="row" style="margin-top: 15px;">
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table id="dev-type-table" class="table table-hover">
                     <thead>
                         <th>Development Type ID</th>
                         <th>Development Type Name</th>
                         <th>Remove</th>
                     </thead>
-                    {%  for allowed in zoning.allowed_uses|sort(attribute='development_type_id') %}
-                        <tr>
-                            <td data-title="Category">{{ allowed.development_type_id }}</td>
-                            <td>{{ allowed.development_type.name }}</td>
-                            <td><a href="{{ url_for('zoning.delete_zoning_allowed_use', allowed_use_id=allowed.zoning_allowed_use_id) }}">Remove</a></td>
-                        </tr>
-                    {% endfor %}
+                    <tbody>
+                        {%  for allowed in zoning.allowed_uses|sort(attribute='development_type_id') %}
+                            <tr>
+                                <td data-title="Category">{{ allowed.development_type_id }}</td>
+                                <td>{{ allowed.development_type.name }}</td>
+                                <td><a id="remove-allowed-{{ allowed.zoning_allowed_use_id }}" href="" data-allowed-use-id="{{ allowed.zoning_allowed_use_id }}">Remove</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -129,15 +131,40 @@
 {{ super() }}
     <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
     <script type="text/javascript">
-        $(function() {
-            var link = $('a#add_dev_type_link');
+        var base_remove_url = '{{ url_for('zoning.delete_zoning_allowed_use_ajax', allowed_use_id=0) }}'.slice(0,-2);
+        $(document).ready(function() {
+            $('a[id^="remove-allowed"]').on('click', delete_allowed_use);
 
-            $("select#select-dev-type").on("change", function() {
-                link.attr("href", $SCRIPT_ROOT + '/zoning/add/{{ jurisdiction.name }}/{{ zoning.zone_code }}/' + $(this).val() );
+            $('a#add_dev_type_link').on("click", function () {
+                var sel = $("select#select-dev-type");
+                $.ajax({
+                    url: $SCRIPT_ROOT + '/zoning/_add/{{ jurisdiction.name }}/{{ zoning.zone_code }}/' + sel.val()
+                }).done(rebuild_table);
+
+                return false;
             });
-
-            $("select#select-dev-type").trigger('change');
         });
+
+        function delete_allowed_use() {
+            var allowed_use_id = this.dataset.allowedUseId;
+            $.ajax({
+                url: base_remove_url + '/' + allowed_use_id
+            }).done(rebuild_table);
+            return false;
+        };
+
+        function rebuild_table(data) {
+            var table_body = $('#dev-type-table tbody');
+            var newRows = '';
+            $.each(data.result, function (idx, dev) {
+                newRows += '<tr>';
+                newRows += '<td>' + dev.development_type_id + '</td>';
+                newRows += '<td>' + dev.development_type + '</td>';
+                newRows += '<td><a id="remove-allowed-' + dev.zoning_allowed_use_id + '" href="" data-allowed-use-id="' + dev.zoning_allowed_use_id + '">Remove</a></td>';
+            });
+            table_body.html(newRows);
+            $('a[id^="remove-allowed"]').on('click', delete_allowed_use);
+        }
 
         var Stamen_TonerLite = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
 	        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',

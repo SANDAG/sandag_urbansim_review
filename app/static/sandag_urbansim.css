@@ -81,3 +81,13 @@ div.alt-grid.container {
   height:60px; /* fixed header height*/
   margin:-60px 0 0; /* negative fixed header height */
 }
+
+.leaflet-div-icon-2 {
+    width: 35px;
+	height: 35px;
+	background-color: rgba(150, 150, 150, 0.4);
+    border-radius: 50%;
+	text-align: center;
+	font-size: 10px;
+    padding-top: 10px;
+}

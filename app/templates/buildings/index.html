@@ -85,13 +85,54 @@
 	                                        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
         });
 
-        var building_layer = L.geoJson();
+        function popUp(f,coord){
+            i = L.divIcon({
+                html: '<p>' + numeral(f.properties.buildings).format('0,0') + '</p>',
+                className: 'leaflet-div-icon-2',
+                iconSize: L.Point(35,35)
+            });
+
+            console.log(i);
+
+            return L.marker(coord, {icon: i});
+        }
+
+        function refreshBuildingLayer() {
+            var z = map.getZoom();
+            var b = map.getBounds();
+
+            $.ajax({
+                dataType: "json",
+                url: '{{ url_for('buildings.buildings_statistics_map') }}',
+                type: 'POST',
+                data: {
+                    zoom_level: z,
+                    x_min: b.getSouthWest().lng,
+                    x_max: b.getNorthEast().lng,
+                    y_min: b.getSouthWest().lat,
+                    y_max: b.getNorthEast().lat
+                },
+                success: function (data) {
+                    map.removeLayer(building_info_layer);
+                    building_info_layer = L.geoJson(data, {pointToLayer: popUp});
+                    building_info_layer.addTo(map);
+                }
+            }).error(function() {});
+        }
+
+        var building_layer = L.geoJson(null, {pointToLayer: popUp});
 
         map = L.map("map", {
            zoom: 10,
            center: [33.0, -116.85],
            layers: [Stamen_TonerLite, building_layer]
         });
+
+        var building_info_layer = new L.GeoJSON();
+        building_info_layer.addTo(map);
+
+        map.on("load", refreshBuildingLayer());
+        map.on("moveend", refreshBuildingLayer);
 
         function processBuilding(geom) {
             building_layer.clearLayers();
