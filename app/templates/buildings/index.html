@@ -85,6 +85,8 @@
 	                                        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
         });
 
+        var boundaries_layer = L.tileLayer('http://sdg77861.sandag.org/tiles/aggregate_layers/{z}/{x}/{y}.{ext}', {ext: 'png'});
+
         function popUp(f,coord){
             i = L.divIcon({
                 html: '<p>' + numeral(f.properties.buildings).format('0,0') + '</p>',
@@ -125,7 +127,7 @@
         map = L.map("map", {
            zoom: 10,
            center: [33.0, -116.85],
-           layers: [Stamen_TonerLite, building_layer]
+           layers: [Stamen_TonerLite, boundaries_layer, building_layer]
         });
 
         var building_info_layer = new L.GeoJSON();

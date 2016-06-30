@@ -79,7 +79,7 @@ def buildings_statistics_map():
     elif zoom_level < 15:
         geography_type = 'luz'
         print 'luz'
-    elif zoom_level < 18:
+    elif zoom_level < 20:
         geography_type = 'mgra'
         print 'mgra'
     else:
