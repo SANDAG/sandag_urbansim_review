@@ -236,6 +236,7 @@ class Building(db.Model):
     residential_sqft = db.Column(db.Integer)
     non_residential_sqft = db.Column(db.Integer)
     job_spaces = db.Column(db.SmallInteger)
+    jobs = db.relationship('Job', backref='building', lazy='dynamic')
     non_residential_rent_per_sqft = db.Column(db.Float)
     residential_rent_per_sqft = db.Column(db.Float, name='price_per_sqft')
     stories = db.Column(db.Integer)
@@ -272,6 +273,13 @@ class Building(db.Model):
     def __repr__(self):
         return '<Building %r>' % self.building_id
 
+
+class Job(db.Model):
+    __tablename__ = 'jobs'
+    __table_args__ = {'schema': 'urbansim'}
+    job_id = db.Column(db.Integer, primary_key=True)
+    sector_id = db.Column(db.Integer, nullable=False)
+    building_id = db.Column(db.Integer, db.ForeignKey('urbansim.buildings.building_id'))
 
 class Parcel(db.Model):
     __tablename__ = 'parcels'
