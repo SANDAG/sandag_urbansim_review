@@ -31,6 +31,9 @@ def create_app(config_name):
     from.buildings import buildings as buildings_blueprint
     app.register_blueprint(buildings_blueprint, url_prefix='/buildings')
 
+    from .jobs import jobs as jobs_blueprint
+    app.register_blueprint(jobs_blueprint, url_prefix='/jobs')
+
     from .scenario import scenario as scenario_blueprint
     app.register_blueprint(scenario_blueprint, url_prefix='/scenario')
 

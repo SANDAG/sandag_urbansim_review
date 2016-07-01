@@ -1,0 +1,144 @@
+{% extends "bootstrap_base.html" %}
+{% block title %}SANDAG Buildings Review{% endblock %}
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" >
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/u/bs/jqc-1.12.3,dt-1.10.12/datatables.min.css"/>
+{% endblock %}
+{% block content %}
+    <div class="alt-grid container">
+        <div class="col-md-4" style="border-right: 1px #e7e7e7 solid; padding: 5px 25px; height: 100%;">
+            SOME TEXT ABOUT JOBS
+        </div>
+        <div class="col-md-8" style="height: 100%;"><div id="map"></div></div>
+    </div>
+
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+    <script type="text/javascript">
+        var Stamen_TonerLite = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
+	        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+	        subdomains: 'abcd',
+	        minZoom: 0,
+	        maxZoom: 20,
+	        ext: 'png'
+        });
+
+        // https: also suppported.
+        var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+	                                        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
+
+        function getColor(jobs) {
+            return (jobs === 1) ? '#f2f0f7' :
+                    (jobs <= 10) ? '#dadaeb' :
+                    (jobs <= 50) ? '#bcbddc' :
+                    (jobs <= 100) ? '#9e9ac8' :
+                    (jobs <= 250) ? '#756bb1' :
+                    '#54278f';
+        }
+
+        function getStyle(feature){
+            return {
+                fillColor: getColor(feature.properties.jobs),
+                fillOpacity: 0.8,
+                weight: 1,
+                opacity: 0.6,
+                color: '#efefef',
+                dashArray: '3'
+            }
+        }
+
+        function popUp(f,coord){
+            var jobs = f.properties.jobs;
+            var i;
+
+            if (jobs === 1){
+                i = L.divIcon({
+                    className: 'leaflet-purple-ramp-1',
+                    iconSize: L.Point(10,10)
+                });
+            } else if (jobs <= 10) {
+                i = L.divIcon({
+                    className: 'leaflet-purple-ramp-2',
+                    iconSize: L.Point(10,10)
+                });
+            } else if (jobs <= 50) {
+                i = L.divIcon({
+                    className: 'leaflet-purple-ramp-3',
+                    iconSize: L.Point(10,10)
+                });
+            } else if (jobs <= 100) {
+                i = L.divIcon({
+                    className: 'leaflet-purple-ramp-4',
+                    iconSize: L.Point(10,10)
+                });
+            } else if (jobs <= 250) {
+                i = L.divIcon({
+                    className: 'leaflet-purple-ramp-5',
+                    iconSize: L.Point(10,10)
+                });
+            } else {
+                i = L.divIcon({
+                    className: 'leaflet-purple-ramp-6',
+                    iconSize: L.Point(10,10)
+                });
+            }
+
+            return L.marker(coord, {icon: i});
+        }
+
+        function refreshJobsLayer() {
+            var z = map.getZoom();
+            var b = map.getBounds();
+
+            if (z >= 12) {
+                $.ajax({
+                    dataType: "json",
+                    url: '{{ url_for('jobs.job_statistics_map_jobs') }}',
+                    type: 'GET',
+                    data: {
+                        zoom_level: z,
+                        x_min: b.getSouthWest().lng,
+                        x_max: b.getNorthEast().lng,
+                        y_min: b.getSouthWest().lat,
+                        y_max: b.getNorthEast().lat
+                    },
+                    success: function (data) {
+                        map.removeLayer(job_point_layer);
+                        if (data.features[0].geometry.type === 'Point') {
+                            job_point_layer = L.geoJson(data, {pointToLayer: popUp});
+                        } else {
+                            job_point_layer = L.geoJson(data, {style: getStyle});
+                        }
+                        job_point_layer.addTo(map);
+                    }
+                }).error(function () {
+                });
+            } else {
+                map.removeLayer(job_point_layer);
+            }
+        }
+
+        map = L.map("map", {
+           zoom: 14,
+           center: [32.88, -117.22],
+           layers: [Stamen_TonerLite]
+        });
+
+        baseLayers = {
+          'Streets': Stamen_TonerLite,
+          'Aerial': Esri_WorldImagery
+        };
+
+        L.control.layers(baseLayers).addTo(map);
+
+        var job_point_layer = L.geoJson(null, {pointToLayer: popUp});
+        job_point_layer.addTo(map);
+
+        map.on("load", refreshJobsLayer());
+        map.on("moveend", refreshJobsLayer);
+    </script>
+{% endblock %}
