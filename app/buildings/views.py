@@ -87,7 +87,7 @@ def building_statistics_map_jobs():
                 "type": geojson['type'],
                 "coordinates": geojson['coordinates']
             }, "properties": {
-                "buildings": v
+                "jobs": v
                 , 'building_id': k
             }
         })

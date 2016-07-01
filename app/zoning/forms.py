@@ -16,7 +16,7 @@ class EditZoningForm(Form):
     side_setback = FloatField('Side Setback', validators=[NumberRange(-1,100)])
     min_lot_size = FloatField('Minimum Lot Size', validators=[NumberRange(-1,435600)])
     min_dua = FloatField('Minimum Dwelling Units per Acre', validators=[NumberRange(-1,100)])
-    max_dua = FloatField('Maximum Dwelling Units per Acre', validators=[NumberRange(-1,100)])
+    max_dua = FloatField('Maximum Dwelling Units per Acre', validators=[NumberRange(-1,500)])
     max_res_units = IntegerField('Maximum Residential Units per Lot', validators=[NumberRange(-1,500)])
     max_building_height = IntegerField('Maximum Building Height', validators=[NumberRange(-1,750)])
     zone_code_link = StringField('Link to Zoning Ordinance')
