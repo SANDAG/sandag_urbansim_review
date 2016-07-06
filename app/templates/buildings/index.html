@@ -86,6 +86,7 @@
         });
 
         var boundaries_layer = L.tileLayer('http://sdg77861.sandag.org/tiles/aggregate_layers/{z}/{x}/{y}.{ext}', {ext: 'png'});
+        var buildings_raster_layer = L.tileLayer('http://sdg77861.sandag.org/tiles/buildings/{z}/{x}/{y}.{ext}', {ext: 'png'});
 
         function popUp(f,coord){
             i = L.divIcon({
@@ -127,7 +128,7 @@
         map = L.map("map", {
            zoom: 10,
            center: [33.0, -116.85],
-           layers: [Stamen_TonerLite, boundaries_layer, building_layer]
+           layers: [Stamen_TonerLite, buildings_raster_layer, boundaries_layer, building_layer]
         });
 
         var building_info_layer = new L.GeoJSON();

@@ -99,6 +99,17 @@ class Building(db.Model):
         return '<Building %r>' % self.building_id
 
 
+class Capacity(db.Model):
+    """ SQL Alchemy Class that maps to a view urbansim.vi_parcel_res_capacity """
+
+    __tablename__ = 'vi_parcel_res_capacity'
+    __table_args__ = {'schema': 'urbansim'}
+    jurisdiction_id = db.Column(db.Integer, db.ForeignKey('ref.jurisdiction.jurisdiction_id'))
+    zoning_id = db.Column(db.String(35), nullable=False)
+    parcel_id = db.Column(db.Integer, db.ForeignKey('urbansim.parcels.parcel_id') ,primary_key=True)
+    parcel_capacity = db.Column(db.Integer, nullable=False)
+
+
 class DevelopmentType(db.Model):
     """ SQL Alchemy Class that maps to a lookup table ref.development_type """
 
@@ -152,6 +163,7 @@ class Jurisdiction(db.Model):
     jurisdiction_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(32), unique=True)
     zones = db.relationship('Zoning', backref='jurisdiction', lazy='dynamic')
+    capacity = db.relationship('Capacity', backref='jurisdiction', lazy='dynamic')
 
     @staticmethod
     def insert_jurisdictions():
@@ -211,6 +223,7 @@ class Parcel(db.Model):
     luz_id = db.Column(db.Integer)
     mgra_id = db.Column(db.Integer)
     buildings = db.relationship('Building', backref='parcel', lazy='dynamic')
+    capacity = db.relationship('Capacity', backref='parcel', uselist=False)
 
     def __repr__(self):
         return '<Parcel %r>' % self.parcel_id

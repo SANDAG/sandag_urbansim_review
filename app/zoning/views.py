@@ -1,6 +1,6 @@
 import datetime
 
-from flask import redirect, render_template, url_for, flash, jsonify, Response
+from flask import redirect, render_template, url_for, flash, jsonify, request
 from flask.ext.login import login_required, current_user
 
 from sqlalchemy import func, asc
@@ -8,7 +8,7 @@ from sqlalchemy import func, asc
 from . import zoning
 from .forms import EditZoningForm
 from .. import db
-from ..models import Jurisdiction, Zoning, AllowedUse, DevelopmentType
+from ..models import Capacity, Jurisdiction, Zoning, AllowedUse, DevelopmentType
 
 import json
 
@@ -39,6 +39,35 @@ def jurisdiction_overview(jurisdiction_name):
                            title=j.name,
                            jurisdiction=j,
                            zoning=j.zones)
+
+
+@zoning.route('/_capacity/<jurisdiction_name>')
+def jurisdiction_capacity(jurisdiction_name):
+    include_zones = request.values.get('include_zones', type=str)
+    j = Jurisdiction.query.filter_by(name=jurisdiction_name).first()
+
+    qry = db.session.query(Capacity.jurisdiction_id, func.sum(Capacity.parcel_capacity)).filter(Capacity.jurisdiction_id == j.jurisdiction_id).group_by(Capacity.jurisdiction_id)
+    columns = ['jurisdiction', 'residential_units']
+
+    if include_zones and include_zones.lower() == 'yes':
+        qry = qry.add_columns(Capacity.zoning_id)\
+            .group_by(Capacity.zoning_id)\
+            .order_by(Capacity.zoning_id)
+        columns.append('zoning_id')
+
+
+
+    capacity = qry.all()
+    return_list = []
+    for c in capacity:
+        results = [jurisdiction_name, int(c[1])]
+        if include_zones and include_zones.lower() == 'yes':
+            results.append(c[2])
+        return_list.append(dict(zip(columns, results)))
+
+    print return_list
+
+    return jsonify({'capacity': return_list})
 
 
 @zoning.route('/<jurisdiction_name>/<zone_code>')

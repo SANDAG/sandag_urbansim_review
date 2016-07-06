@@ -6,10 +6,10 @@
         {% for z in zoning|sort(attribute='zone_code') %}
         <a name="{{ z.zone_code }}"></a>
         <div class="row data-heading">
-            <div class="col-sm-1">
+            <div class="col-sm-7">
                 <a href="{{  url_for('zoning.zoning_overview', jurisdiction_name=jurisdiction.name, zone_code=z.zone_code) }}">{{ z.zone_code }}</a>
             </div>
-            <div class="col-sm-11 mod-date" style="text-align: left;">
+            <div class="col-sm-5 mod-date text-right" style="padding-top: 5px;">
                 {% if z.review_date %}(Last Reviewed: {{ momentjs(z.review_date).calendar() }}){% endif %}
             </div>
         </div>
@@ -100,16 +100,41 @@
                     <div class="col-xs-7 text-right">{{ z.review_by }}</div>
                 </div>
             </div>
-            <div class="col-sm-8 data-item">
+            <div class="col-sm-4 data-item">
                 <div class="row">
                     <div class="col-xs-1 text-left">Notes:</div>
                     <div class="col-xs-11 text-left"> {{ z.notes }}</div>
                 </div>
             </div>
-
+            <div class="col-sm-4 data-item" >
+                <div class="row">
+                    <div class="col-xs-9 text-left">Residential Capacity:</div>
+                    <div class="col-xs-3 text-right" id="{{ z.zone_code.replace(' ', '_').replace('(', '_').replace(')','_') }}_res_capacity">&nbsp;</div>
+                </div>
+            </div>
         </div>
 
         {% endfor %}
     </div>
 
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $.ajax({
+                url: $SCRIPT_ROOT + '/zoning/_capacity/{{ jurisdiction.name }}?include_zones=yes',
+                data: {
+                    include_zones: 'yes'
+                }
+            }).done(function (data) {
+                var x = data.capacity[1];
+                for (var i=0; i<data.capacity.length;i++) {
+                    var z = data.capacity[i].zoning_id;
+                    var zone_code = z.substr(z.indexOf('_')+1).replace(/ /g, '_').replace(/\(/g, '_').replace(/\)/g,'_');
+                    $('div#' + zone_code + '_res_capacity').text(numeral(data.capacity[i].residential_units).format('0,0'));
+                }
+            });
+        });
+    </script>
 {% endblock %}
